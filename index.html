@@ -249,6 +249,8 @@ let currentUser = null;
 let activeSection = 'overview';
 let cache = { clients:null, campaigns:null, adsets:null, adcopy:null };
 let searchTerms = { clients:'', campaigns:'', adsets:'', adcopy:'' };
+let rowData = {}; // safe lookup map for onclick handlers
+function storeRow(item) { rowData[item.id] = item; return item.id; }
 
 // ═══════════════════════════════════════
 // AUTH
@@ -431,7 +433,7 @@ async function renderClients() {
     ${searchBar('clients','Search clients...')}
     <div class="table-wrap"><div class="table-scroll"><table>
       <thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th><th>Location</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick='openClientPanel(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick="openClientPanel('${storeRow(c)}')">
         <td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td>
         <td style="max-width:180px">${esc(c.serviceType)}</td><td>${badge(c.status)}</td>
         <td style="white-space:nowrap">${money(c.monthlyRetainer)}</td><td>${esc(c.location)}</td>
@@ -439,7 +441,9 @@ async function renderClients() {
     </table></div></div>`;
 }
 
-function openClientPanel(c) {
+function openClientPanel(idOrObj) {
+  const c = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
+  if (!c) return;
   openPanel(c.name || 'Client', `
     ${fieldRow('Business Name', c.businessName || c.name)}
     ${fieldRow('Industry', c.industry)}
@@ -506,7 +510,7 @@ async function renderCampaigns() {
     ${searchBar('campaigns','Search campaigns...')}
     <div class="table-wrap"><div class="table-scroll"><table>
       <thead><tr><th>Campaign</th><th>Objective</th><th>Type</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick='openCampaignPanel(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick="openCampaignPanel('${storeRow(c)}')">
         <td class="cell-name">${esc(c.name)}</td><td>${esc(c.objective)}</td>
         <td>${esc(c.campaignType)}</td><td>${badge(c.status)}</td>
         <td style="white-space:nowrap">${money(c.totalBudget)}</td>
@@ -516,7 +520,9 @@ async function renderCampaigns() {
     </table></div></div>`;
 }
 
-function openCampaignPanel(c) {
+function openCampaignPanel(idOrObj) {
+  const c = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
+  if (!c) return;
   const roas = (c.totalSpend && c.totalConversions) ? (c.totalConversions / c.totalSpend * 100).toFixed(1) + 'x' : '—';
   openPanel(c.name || 'Campaign', `
     ${fieldRow('Objective', c.objective)}
@@ -580,7 +586,7 @@ async function renderAdSets() {
     ${searchBar('adsets','Search ad sets...')}
     <div class="table-wrap"><div class="table-scroll"><table>
       <thead><tr><th>Ad Set</th><th>Funnel</th><th>Audience</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick='openAdSetPanel(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick="openAdSetPanel('${storeRow(a)}')">
         <td class="cell-name" style="max-width:240px">${esc(a.name)}</td>
         <td>${esc(a.funnelStage)}</td><td>${esc(a.audienceType)}</td>
         <td>${badge(a.status)}</td><td style="white-space:nowrap">${money(a.dailyBudget)}</td>
@@ -589,7 +595,9 @@ async function renderAdSets() {
     </table></div></div>`;
 }
 
-function openAdSetPanel(a) {
+function openAdSetPanel(idOrObj) {
+  const a = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
+  if (!a) return;
   openPanel(a.name || 'Ad Set', `
     ${fieldRow('Funnel Stage', a.funnelStage)}
     ${fieldRow('Awareness Level', a.awarenessLevel)}
@@ -681,7 +689,7 @@ async function renderAdCopy() {
     ${searchBar('adcopy','Search by reference, angle, headline...')}
     <div class="table-wrap"><div class="table-scroll"><table>
       <thead><tr><th>Reference</th><th>Angle</th><th>Headline</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick='openAdCopyPanel(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick="openAdCopyPanel('${storeRow(a)}')">
         <td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td>
         <td style="max-width:180px">${esc(a.headline)}</td><td>${badge(a.status)}</td>
         <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td>
@@ -690,7 +698,9 @@ async function renderAdCopy() {
     </table></div></div>`;
 }
 
-function openAdCopyPanel(a) {
+function openAdCopyPanel(idOrObj) {
+  const a = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
+  if (!a) return;
   const previewBody = (a.hook||'') + (a.hook && a.primaryText ? '\n\n' : '') + (a.primaryText||'');
   openPanel(a.name || 'Ad Copy', `
     ${fieldRow('Reference', a.reference)}
