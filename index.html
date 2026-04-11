@@ -136,7 +136,7 @@ var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'C
 var SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
 var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null},srch={clients:'',campaigns:'',adsets:'',adcopy:''};
-var filters={campaignClient:'',adsetClient:'',adcopyClient:'',perfClient:''};
+var filters={campaignClient:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',perfClient:''};
 var RD={};
 function sr(o){RD[o.id]=o;return o.id;}
 function gr(id){return RD[id];}
@@ -297,13 +297,29 @@ document.getElementById('mainContent').addEventListener('click',function(e){
 });
 document.getElementById('mainContent').addEventListener('input',function(e){
   if(e.target.hasAttribute('data-search')){
-    srch[e.target.getAttribute('data-search')]=e.target.value;
-    render();
+    var key=e.target.getAttribute('data-search');
+    var val=e.target.value;
+    var pos=e.target.selectionStart;
+    srch[key]=val;
+    // Debounce — wait 300ms after last keystroke
+    if(window._searchTimer)clearTimeout(window._searchTimer);
+    window._searchTimer=window.setTimeout(function(){
+      render();
+      // Restore focus and cursor position
+      window.setTimeout(function(){
+        var inp=document.querySelector('[data-search="'+key+'"]');
+        if(inp){inp.focus();inp.setSelectionRange(pos,pos);}
+      },10);
+    },300);
   }
 });
 document.getElementById('mainContent').addEventListener('change',function(e){
   if(e.target.hasAttribute('data-filter')){
-    filters[e.target.getAttribute('data-filter')]=e.target.value;
+    var key=e.target.getAttribute('data-filter');
+    filters[key]=e.target.value;
+    // Cascade: if client changes, reset child filters
+    if(key==='adcopyClient'){filters.adcopyCampaign='';filters.adcopyAdset='';}
+    if(key==='adcopyCampaign'){filters.adcopyAdset='';}
     render();
   }
 });
@@ -449,16 +465,38 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
     f[x]._client=adset?resolveClient(adset.clientIds):'';
     f[x]._campaign=adset?resolveCampaign(adset.campaignIds):'';
   }
-  // Apply client filter
+  // Apply filters
   if(filters.adcopyClient)f=f.filter(function(a){return a._client===filters.adcopyClient;});
+  if(filters.adcopyCampaign)f=f.filter(function(a){return a._campaign===filters.adcopyCampaign;});
+  if(filters.adcopyAdset)f=f.filter(function(a){return a._adSet===filters.adcopyAdset;});
   // Apply search
   if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.reference||'').toLowerCase().indexOf(t)>-1||(a.angle||'').toLowerCase().indexOf(t)>-1||(a.headline||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1||(a._campaign||'').toLowerCase().indexOf(t)>-1;});
-  // Get unique clients for filter dropdown
-  var allClients={};
-  for(var z=0;z<d.length;z++){if(d[z]._client)allClients[d[z]._client]=true;}
+  // Build unique lists for filter dropdowns
+  var allClients={},allCampaigns={},allAdSets={};
+  for(var z=0;z<d.length;z++){
+    if(d[z]._client)allClients[d[z]._client]=true;
+    if(d[z]._campaign)allCampaigns[d[z]._campaign]=true;
+    if(d[z]._adSet)allAdSets[d[z]._adSet]=true;
+  }
   var clientList=Object.keys(allClients).sort();
-  var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
-  h+='<div class="search-bar"><input placeholder="Search by reference, angle, headline..." value="'+esc(srch.adcopy)+'" data-search="adcopy">'+clientFilter('adcopyClient',clientList)+'</div>';
+  var campaignList=Object.keys(allCampaigns).sort();
+  var adsetList=Object.keys(allAdSets).sort();
+  // If client is filtered, narrow campaign and adset options
+  if(filters.adcopyClient){
+    campaignList=campaignList.filter(function(c){for(var i=0;i<d.length;i++){if(d[i]._client===filters.adcopyClient&&d[i]._campaign===c)return true;}return false;});
+    adsetList=adsetList.filter(function(a){for(var i=0;i<d.length;i++){if(d[i]._client===filters.adcopyClient&&d[i]._adSet===a)return true;}return false;});
+  }
+  if(filters.adcopyCampaign){
+    adsetList=adsetList.filter(function(a){for(var i=0;i<d.length;i++){if(d[i]._campaign===filters.adcopyCampaign&&d[i]._adSet===a)return true;}return false;});
+  }
+  function makeFilter(key,label,opts){
+    var h='<select data-filter="'+key+'" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;min-width:140px">';
+    h+='<option value="">'+label+'</option>';
+    for(var i=0;i<opts.length;i++){h+='<option'+(filters[key]===opts[i]?' selected':'')+'>'+esc(opts[i])+'</option>';}
+    h+='</select>';return h;
+  }
+  var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations'+(f.length!==d.length?' \u2014 showing '+f.length:'')+'</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
+  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search by reference, angle, headline..." value="'+esc(srch.adcopy)+'" data-search="adcopy" style="min-width:200px">'+makeFilter('adcopyClient','All Clients',clientList)+makeFilter('adcopyCampaign','All Campaigns',campaignList)+makeFilter('adcopyAdset','All Ad Sets',adsetList)+'</div>';
   h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Headline</th><th>Status</th><th>CTR</th><th>Conv</th></tr></thead><tbody>';
   if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td style="max-width:160px">'+esc(a.headline)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
   else h+='<tr><td colspan="8" class="empty">No ads</td></tr>';
