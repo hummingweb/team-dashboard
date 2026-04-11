@@ -8,91 +8,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#070709;--surface:#111114;--surface2:#18181c;--surface-hover:#1e1e23;
-  --border:#27272e;--border-l:#35353e;--yellow:#fff200;--yellow-dim:#bdb400;
-  --text:#e4e4e8;--text-m:#8a8a96;--text-d:#55555f;
-  --green:#22c55e;--red:#ef4444;--orange:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --bg:#f2f2f0;--surface:#fff;--surface2:#f8f8f6;--surface-hover:#f0f0ee;
+  --border:#e2e2de;--border-l:#d0d0cc;--yellow:#fff200;--yellow-bg:#000;
+  --accent:#1a1a1a;--accent-light:#333;
+  --text:#1a1a1a;--text-m:#6b6b6b;--text-d:#999;
+  --green:#1a8a5c;--red:#c0392b;--orange:#c27a00;--blue:#2563a8;--purple:#7c3aed;
   --radius:10px;--radius-sm:6px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow:hidden;height:100vh}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-l);border-radius:8px}
 
-/* ── Layout ── */
 .app{display:flex;height:100vh}
-.sidebar{width:224px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.sidebar-brand{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sidebar{width:224px;background:var(--accent);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-brand{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
 .brand-icon{width:34px;height:34px;background:var(--yellow);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000}
-.brand-text h3{font-size:14px;font-weight:600;color:var(--text);line-height:1.2}.brand-text span{font-size:11px;color:var(--text-m)}
+.brand-text h3{font-size:14px;font-weight:600;color:#fff;line-height:1.2}.brand-text span{font-size:11px;color:rgba(255,255,255,.5)}
 .sidebar nav{flex:1;padding:12px 8px;overflow-y:auto}
-.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;margin-bottom:1px;background:transparent;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:400;color:var(--text-m);font-family:inherit;text-align:left;transition:all .12s}
-.nav-btn:hover{background:var(--surface2);color:var(--text)}
-.nav-btn.active{background:rgba(255,242,0,.08);color:var(--yellow);font-weight:600}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;margin-bottom:1px;background:transparent;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:400;color:rgba(255,255,255,.55);font-family:inherit;text-align:left;transition:all .12s}
+.nav-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.nav-btn.active{background:rgba(255,242,0,.12);color:var(--yellow);font-weight:600}
 .nav-btn .icon{font-size:15px;width:20px;text-align:center}
-.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.sidebar-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,.08)}
 .user-info{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000}
-.user-meta .uname{font-size:12px;font-weight:500;color:var(--text)}.user-meta .urole{font-size:10px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em}
-.btn-signout{width:100%;padding:6px 0;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-m);font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s}
-.btn-signout:hover{border-color:var(--border-l);color:var(--text)}
+.user-meta .uname{font-size:12px;font-weight:500;color:#fff}.user-meta .urole{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.04em}
+.btn-signout{width:100%;padding:6px 0;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s}
+.btn-signout:hover{border-color:rgba(255,255,255,.3);color:#fff}
 
 .main{flex:1;overflow-y:auto;padding:28px 32px}
 
-/* ── Login ── */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.login-card{width:380px;background:var(--surface);border-radius:16px;padding:40px;border:1px solid var(--border)}
+.login-card{width:380px;background:var(--surface);border-radius:16px;padding:40px;border:1px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,.04)}
 .login-card .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
 .login-card label{font-size:11px;color:var(--text-m);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.login-card input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;font-family:inherit;margin-bottom:16px;transition:border .15s}
-.login-card input:focus{border-color:var(--yellow)}
+.login-card input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;font-family:inherit;margin-bottom:16px;transition:border .15s}
+.login-card input:focus{border-color:var(--accent)}
 .login-err{color:var(--red);font-size:13px;margin-bottom:10px}
 
-/* ── Buttons ── */
 .btn{font-family:inherit;cursor:pointer;font-size:13px;padding:8px 18px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-m);font-weight:500;transition:all .12s}
 .btn:hover{background:var(--surface2);border-color:var(--border-l);color:var(--text)}
-.btn-primary{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:600}
-.btn-primary:hover{background:var(--yellow-dim)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:var(--accent-light)}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed}
 .btn-sm{font-size:12px;padding:5px 12px;border-radius:var(--radius-sm)}
-.btn-danger{color:var(--red);border-color:rgba(239,68,68,.3)}.btn-danger:hover{background:rgba(239,68,68,.08)}
-.btn-save{background:var(--green);color:#000;border-color:var(--green);font-weight:600}.btn-save:hover{background:#1db954}
+.btn-danger{color:var(--red);border-color:rgba(192,57,43,.25)}.btn-danger:hover{background:rgba(192,57,43,.06)}
+.btn-save{background:var(--green);color:#fff;border-color:var(--green);font-weight:600}.btn-save:hover{background:#157a50}
 
-/* ── Section Header ── */
 .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
 .section-hdr h2{font-size:20px;font-weight:600;color:var(--text)}
 .section-hdr .sub{font-size:13px;color:var(--text-m);margin-top:3px}
 
-/* ── Table ── */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.03)}
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
-th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface)}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2)}
 td{padding:12px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);max-width:220px;overflow:hidden;text-overflow:ellipsis}
 tr.clickable{cursor:pointer;transition:background .08s}tr.clickable:hover{background:var(--surface-hover)}
 .cell-name{font-weight:500}.cell-mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
-/* ── Badge ── */
 .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
 .badge .dot{width:6px;height:6px;border-radius:50%}
-.badge-green{background:rgba(34,197,94,.12);color:var(--green)}.badge-green .dot{background:var(--green)}
-.badge-orange{background:rgba(245,158,11,.12);color:var(--orange)}.badge-orange .dot{background:var(--orange)}
-.badge-red{background:rgba(239,68,68,.12);color:var(--red)}.badge-red .dot{background:var(--red)}
-.badge-blue{background:rgba(59,130,246,.12);color:var(--blue)}.badge-blue .dot{background:var(--blue)}
-.badge-gray{background:rgba(138,138,150,.1);color:var(--text-m)}.badge-gray .dot{background:var(--text-m)}
-.badge-dim{background:rgba(85,85,95,.1);color:var(--text-d)}.badge-dim .dot{background:var(--text-d)}
+.badge-green{background:rgba(26,138,92,.1);color:var(--green)}.badge-green .dot{background:var(--green)}
+.badge-orange{background:rgba(194,122,0,.1);color:var(--orange)}.badge-orange .dot{background:var(--orange)}
+.badge-red{background:rgba(192,57,43,.08);color:var(--red)}.badge-red .dot{background:var(--red)}
+.badge-blue{background:rgba(37,99,168,.08);color:var(--blue)}.badge-blue .dot{background:var(--blue)}
+.badge-gray{background:rgba(107,107,107,.08);color:var(--text-m)}.badge-gray .dot{background:var(--text-m)}
+.badge-dim{background:rgba(153,153,153,.08);color:var(--text-d)}.badge-dim .dot{background:var(--text-d)}
 
-/* ── Metric Card ── */
 .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
 .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
 .metric-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
 .metric-val{font-size:26px;font-weight:600;color:var(--text)}
 .metric-sub{font-size:11px;color:var(--text-d);margin-top:3px}
 
-/* ── Detail Panel ── */
 .overlay{position:fixed;inset:0;z-index:100;display:none;justify-content:flex-end}
 .overlay.open{display:flex}
-.overlay-bg{position:absolute;inset:0;background:rgba(0,0,0,.55)}
-.panel{position:relative;width:520px;max-width:92vw;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;animation:slideIn .2s ease}
+.overlay-bg{position:absolute;inset:0;background:rgba(0,0,0,.25)}
+.panel{position:relative;width:520px;max-width:92vw;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;animation:slideIn .2s ease;box-shadow:-8px 0 30px rgba(0,0,0,.06)}
 @keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
 .panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}
 .panel-hdr h3{font-size:16px;font-weight:600;color:var(--text)}
@@ -100,56 +93,42 @@ tr.clickable{cursor:pointer;transition:background .08s}tr.clickable:hover{backgr
 .panel-body{padding:20px}
 .field{margin-bottom:14px}.field-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.field-val{font-size:13px;color:var(--text);line-height:1.5}
 
-/* ── Ad Preview ── */
-.ad-preview{margin:16px 0;padding:16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
-.ad-preview .label{font-size:11px;color:var(--yellow);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ad-preview{margin:16px 0;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
+.ad-preview .label{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-weight:600}
 .ad-preview .body{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:12px}
 .ad-preview .below{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
 .ad-preview .hl{font-size:14px;font-weight:600;color:var(--text)}.ad-preview .desc{font-size:12px;color:var(--text-m);margin-top:2px}
-.ad-preview .cta-tag{display:inline-block;margin-top:8px;padding:4px 12px;background:rgba(255,242,0,.1);color:var(--yellow);border-radius:4px;font-size:11px;font-weight:600}
+.ad-preview .cta-tag{display:inline-block;margin-top:8px;padding:4px 12px;background:rgba(26,26,26,.06);color:var(--accent);border-radius:4px;font-size:11px;font-weight:600;border:1px solid var(--border)}
 
-/* ── Performance / Reports ── */
-textarea.perf-input{width:100%;min-height:180px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;resize:vertical;outline:none;line-height:1.6}
-textarea.perf-input:focus{border-color:var(--yellow)}
-.result-box{margin-top:16px;padding:16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+textarea.perf-input{width:100%;min-height:180px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;resize:vertical;outline:none;line-height:1.6}
+textarea.perf-input:focus{border-color:var(--accent)}
+.result-box{margin-top:16px;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
 .result-box .rlabel{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
 .result-box pre{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;font-family:'Outfit',sans-serif}
-.report-types{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.rt-btn{padding:8px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text-m);font-size:13px;cursor:pointer;font-family:inherit;transition:all .12s}
-.rt-btn:hover{border-color:var(--border-l)}.rt-btn.active{background:rgba(255,242,0,.08);border-color:var(--yellow);color:var(--yellow);font-weight:600}
-.filter-row{display:flex;gap:12px;margin-bottom:16px;align-items:center}
-.filter-row input{flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
-.filter-row input:focus{border-color:var(--yellow)}
 
-/* ── Loader ── */
 .loader-wrap{padding:60px;text-align:center}
-.spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-text{margin-top:12px;font-size:13px;color:var(--text-m)}
 .empty{padding:40px;text-align:center;color:var(--text-m);font-size:13px}
 
-/* ── Edit Modal ── */
 .edit-row{margin-bottom:14px}
 .edit-row label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px}
-.edit-row input,.edit-row select,.edit-row textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;font-family:inherit}
-.edit-row input:focus,.edit-row select:focus,.edit-row textarea:focus{border-color:var(--yellow)}
-.edit-row select{cursor:pointer}
+.edit-row input,.edit-row select,.edit-row textarea{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.edit-row input:focus,.edit-row select:focus,.edit-row textarea:focus{border-color:var(--accent)}
 .edit-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 
-/* ── Tabs filter ── */
-.tab-filters{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.tab-f{padding:5px 14px;background:transparent;border:1px solid var(--border);border-radius:20px;color:var(--text-m);font-size:12px;cursor:pointer;font-family:inherit;transition:all .12s}
-.tab-f:hover{border-color:var(--border-l)}.tab-f.active{background:rgba(255,242,0,.08);border-color:var(--yellow);color:var(--yellow)}
+.search-bar{display:flex;gap:10px;margin-bottom:16px}
+.search-bar input{flex:1;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+.search-bar input:focus{border-color:var(--accent)}
 
-/* ── Search bar ── */
-.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center}
-.search-bar input{flex:1;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
-.search-bar input:focus{border-color:var(--yellow)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:200;animation:toastIn .3s ease;font-family:'Outfit',sans-serif}
+.toast-ok{background:var(--green);color:#fff}.toast-err{background:var(--red);color:#fff}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* ── Responsive ── */
 @media(max-width:768px){
   .sidebar{width:60px}.sidebar nav .nav-label,.brand-text,.sidebar-footer .user-meta,.sidebar-footer .btn-signout{display:none}
-  .sidebar-brand{padding:14px 8px;justify-content:center}.sidebar-brand .brand-icon{width:36px;height:36px}
+  .sidebar-brand{padding:14px 8px;justify-content:center}
   .nav-btn{justify-content:center;padding:10px}.nav-btn .icon{width:auto}
   .sidebar-footer{padding:10px;text-align:center}.sidebar-footer .user-avatar{margin:0 auto}
   .main{padding:16px}
@@ -158,12 +137,11 @@ textarea.perf-input:focus{border-color:var(--yellow)}
 </head>
 <body>
 
-<!-- ───────── LOGIN SCREEN ───────── -->
 <div id="loginScreen" class="login-wrap">
   <div class="login-card">
     <div class="brand">
       <div class="brand-icon">HW</div>
-      <div><div style="font-size:18px;font-weight:600;color:var(--text)">Team Dashboard</div><div style="font-size:12px;color:var(--text-m)">Humming Web</div></div>
+      <div><div style="font-size:18px;font-weight:600">Team Dashboard</div><div style="font-size:12px;color:var(--text-m)">Humming Web</div></div>
     </div>
     <label>Email</label>
     <input type="email" id="loginEmail" placeholder="you@hummingweb.com.au" onkeydown="if(event.key==='Enter')doLogin()">
@@ -174,30 +152,18 @@ textarea.perf-input:focus{border-color:var(--yellow)}
   </div>
 </div>
 
-<!-- ───────── MAIN APP ───────── -->
 <div id="appShell" class="app" style="display:none">
-
-  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-icon">HW</div>
-      <div class="brand-text"><h3>Humming Web</h3><span>Team Dashboard</span></div>
-    </div>
+    <div class="sidebar-brand"><div class="brand-icon">HW</div><div class="brand-text"><h3>Humming Web</h3><span>Team Dashboard</span></div></div>
     <nav id="sidebarNav"></nav>
     <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar"></div>
-        <div class="user-meta"><div class="uname" id="userName"></div><div class="urole" id="userRole"></div></div>
-      </div>
+      <div class="user-info"><div class="user-avatar" id="userAvatar"></div><div class="user-meta"><div class="uname" id="userName"></div><div class="urole" id="userRole"></div></div></div>
       <button class="btn-signout" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
-
-  <!-- Main content -->
   <main class="main" id="mainContent"></main>
 </div>
 
-<!-- ───────── DETAIL PANEL ───────── -->
 <div class="overlay" id="detailOverlay">
   <div class="overlay-bg" onclick="closePanel()"></div>
   <div class="panel">
@@ -207,709 +173,175 @@ textarea.perf-input:focus{border-color:var(--yellow)}
 </div>
 
 <script>
-// ═══════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════
-const API_BASE = 'https://n8n.hummingweb.com.au/webhook';
-const ENDPOINTS = {
-  clients:   API_BASE + '/team-dashboard-clients',
-  campaigns: API_BASE + '/team-dashboard-campaigns',
-  adsets:    API_BASE + '/team-dashboard-adsets',
-  adcopy:    API_BASE + '/team-dashboard-adcopy',
-  update:    API_BASE + '/team-dashboard-update',
-  del:       API_BASE + '/team-dashboard-delete',
-};
+const API='https://n8n.hummingweb.com.au/webhook';
+const EP={clients:API+'/team-dashboard-clients',campaigns:API+'/team-dashboard-campaigns',adsets:API+'/team-dashboard-adsets',adcopy:API+'/team-dashboard-adcopy',update:API+'/team-dashboard-update',del:API+'/team-dashboard-delete'};
+const USERS=[{email:'subhash@hummingweb.com.au',password:'hw2026!',name:'Subhash',role:'admin'},{email:'team@hummingweb.com.au',password:'team2026',name:'Team Member',role:'team'}];
+const SECTS=[{id:'overview',label:'Overview',icon:'◈'},{id:'clients',label:'Clients',icon:'◎'},{id:'campaigns',label:'Campaigns',icon:'▸'},{id:'adsets',label:'Ad Sets',icon:'◇'},{id:'adcopy',label:'Ad Copy',icon:'✎'},{id:'performance',label:'Performance',icon:'↗'}];
+const SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
-const USERS = [
-  { email:'subhash@hummingweb.com.au', password:'hw2026!', name:'Subhash', role:'admin' },
-  { email:'team@hummingweb.com.au', password:'team2026', name:'Team Member', role:'team' },
-];
+let user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null},srch={clients:'',campaigns:'',adsets:'',adcopy:''};
+// Row data store — keeps full objects in JS, only IDs go to HTML
+const RD={};
+function sr(o){RD[o.id]=o;return o.id;}
+function gr(id){return RD[id];}
 
-const SECTIONS = [
-  { id:'overview',    label:'Overview',     icon:'◈' },
-  { id:'clients',     label:'Clients',      icon:'◎' },
-  { id:'campaigns',   label:'Campaigns',    icon:'▸' },
-  { id:'adsets',      label:'Ad Sets',      icon:'◇' },
-  { id:'adcopy',      label:'Ad Copy',      icon:'✎' },
-  { id:'performance', label:'Performance',  icon:'↗' },
-];
+function toast(m,ok=true){const t=document.createElement('div');t.className='toast '+(ok?'toast-ok':'toast-err');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
 
-const STATUS_MAP = {
-  Active:'green',Live:'green',Approved:'green',
-  Paused:'orange','In Review':'orange',Draft:'gray',
-  Completed:'blue',Planning:'blue',Onboarding:'blue',
-  Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',
-  Lead:'dim',
-};
+// ── Auth ──
+function doLogin(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');btn.textContent='Signing in...';btn.disabled=true;err.style.display='none';setTimeout(()=>{const u=USERS.find(u=>u.email===e&&u.password===p);if(u){user=u;showApp();}else{err.textContent='Invalid credentials';err.style.display='block';btn.textContent='Sign In';btn.disabled=false;}},400);}
+function doLogout(){user=null;cache={clients:null,campaigns:null,adsets:null,adcopy:null};document.getElementById('appShell').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('loginEmail').value='';document.getElementById('loginPass').value='';}
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appShell').style.display='flex';document.getElementById('userName').textContent=user.name;document.getElementById('userRole').textContent=user.role;const a=document.getElementById('userAvatar');a.textContent=user.name[0];a.style.background=user.role==='admin'?'var(--yellow)':'#6ea8fe';buildNav();go('overview');}
+function buildNav(){document.getElementById('sidebarNav').innerHTML=SECTS.map(s=>`<button class="nav-btn${s.id===sec?' active':''}" onclick="go('${s.id}')"><span class="icon">${s.icon}</span><span class="nav-label">${s.label}</span></button>`).join('');}
+function go(s){sec=s;buildNav();render();}
 
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-let currentUser = null;
-let activeSection = 'overview';
-let cache = { clients:null, campaigns:null, adsets:null, adcopy:null };
-let searchTerms = { clients:'', campaigns:'', adsets:'', adcopy:'' };
-let rowData = {}; // safe lookup map for onclick handlers
-function storeRow(item) { rowData[item.id] = item; return item.id; }
-
-// ═══════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════
-function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const errEl = document.getElementById('loginErr');
-  const btn = document.getElementById('loginBtn');
-  btn.textContent = 'Signing in...'; btn.disabled = true;
-  errEl.style.display = 'none';
-  setTimeout(() => {
-    const u = USERS.find(u => u.email === email && u.password === pass);
-    if (u) { currentUser = u; showApp(); }
-    else { errEl.textContent = 'Invalid credentials'; errEl.style.display = 'block'; btn.textContent = 'Sign In'; btn.disabled = false; }
-  }, 400);
+// ── Data ──
+async function fd(t){if(cache[t])return cache[t];try{const r=await fetch(EP[t]);const d=await r.json();cache[t]=Array.isArray(d)?d:[];return cache[t];}catch(e){console.error(t,e);return[];}}
+async function updateNotion(pid,props){
+  const clean={};for(const[k,v] of Object.entries(props)){if(v.type==='number'&&v.value==null)continue;if(v.type==='select'&&!v.value)continue;clean[k]=v;}
+  if(!Object.keys(clean).length)return{success:true};
+  try{const r=await fetch(EP.update,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pageId:pid,properties:clean})});const j=await r.json();return{success:!j.error};}catch(e){console.error(e);return{success:false};}
 }
-function doLogout() {
-  currentUser = null; cache = { clients:null, campaigns:null, adsets:null, adcopy:null };
-  document.getElementById('appShell').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = '';
+async function delNotion(pid){try{const r=await fetch(EP.del,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pageId:pid})});return await r.json();}catch(e){return{error:e.message};}}
+
+// ── Helpers ──
+function bdg(s){if(!s)return'<span class="badge badge-dim"><span class="dot"></span>—</span>';return`<span class="badge badge-${SM[s]||'gray'}"><span class="dot"></span>${s}</span>`;}
+function $(v){return v!=null?'$'+Number(v).toLocaleString():'—';}
+function pct(v){return v!=null?v+'%':'—';}
+function n(v){return v!=null?Number(v).toLocaleString():'—';}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+function mc(l,v,s){return`<div class="metric"><div class="metric-label">${l}</div><div class="metric-val">${v}</div>${s?'<div class="metric-sub">'+s+'</div>':''}</div>`;}
+function fr(l,v){return`<div class="field"><div class="field-label">${l}</div><div class="field-val">${esc(v)||'—'}</div></div>`;}
+function fb(l,s){return`<div class="field"><div class="field-label">${l}</div><div class="field-val">${bdg(s)}</div></div>`;}
+function ldr(){return'<div class="loader-wrap"><div class="spinner"></div><div class="loader-text">Loading from Notion...</div></div>';}
+function sb(t,ph){return`<div class="search-bar"><input type="text" placeholder="${ph}" value="${esc(srch[t])}" oninput="srch['${t}']=this.value;render()"></div>`;}
+function flt(d,t,k){if(!t)return d;const q=t.toLowerCase();return d.filter(r=>k.some(f=>(r[f]||'').toString().toLowerCase().includes(q)));}
+
+function openPanel(t,h){document.getElementById('panelTitle').textContent=t;document.getElementById('panelBody').innerHTML=h;document.getElementById('detailOverlay').classList.add('open');}
+function closePanel(){document.getElementById('detailOverlay').classList.remove('open');}
+
+// ── Overview ──
+async function renderOverview(){const el=document.getElementById('mainContent');el.innerHTML=ldr();
+  const[cl,ca,as,ac]=await Promise.all([fd('clients'),fd('campaigns'),fd('adsets'),fd('adcopy')]);
+  const acl=cl.filter(c=>c.status==='Active').length,lca=ca.filter(c=>c.status==='Live').length,las=as.filter(a=>a.status==='Live').length;
+  const ts=ca.reduce((s,c)=>s+(c.totalSpend||0),0),tc=ca.reduce((s,c)=>s+(c.totalConversions||0),0);
+  const cads=ac.filter(a=>a.ctr),avgCTR=cads.length?(cads.reduce((s,a)=>s+a.ctr,0)/cads.length).toFixed(2):'—';
+  const top=cads.sort((a,b)=>(b.ctr||0)-(a.ctr||0)).slice(0,5);
+  el.innerHTML=`<div class="section-hdr"><div><h2>Overview</h2><div class="sub">Your Meta Ads management at a glance</div></div><button class="btn btn-sm" onclick="cache={clients:null,campaigns:null,adsets:null,adcopy:null};render()">↻ Refresh</button></div>
+    <div class="metrics-grid">${mc('Active Clients',acl,cl.length+' total')}${mc('Live Campaigns',lca,ca.length+' total')}${mc('Live Ad Sets',las,as.length+' total')}${mc('Total Ads',ac.length,ac.filter(a=>a.status==='Live').length+' live')}${mc('Total Spend',$(ts),'All campaigns')}${mc('Conversions',n(tc))}${mc('Avg CTR',avgCTR!=='—'?avgCTR+'%':'—','All ads')}</div>
+    ${top.length?'<h3 style="font-size:15px;font-weight:600;margin:24px 0 12px">Top Performing Ads</h3><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Angle</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th><th>Status</th></tr></thead><tbody>'+top.map(a=>`<tr class="clickable" onclick="go('adcopy')"><td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td><td>${pct(a.ctr)}</td><td>${$(a.cpa)}</td><td>${a.roas?a.roas+'x':'—'}</td><td>${n(a.conversions)}</td><td>${bdg(a.status)}</td></tr>`).join('')+'</tbody></table></div></div>':''}
+    <h3 style="font-size:15px;font-weight:600;margin:24px 0 12px">Recent Clients</h3><div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th></tr></thead><tbody>${cl.slice(0,5).map(c=>`<tr class="clickable" onclick="go('clients')"><td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td><td>${esc(c.serviceType)}</td><td>${bdg(c.status)}</td><td>${$(c.monthlyRetainer)}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
-// ═══════════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════════
-function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appShell').style.display = 'flex';
-  document.getElementById('userName').textContent = currentUser.name;
-  document.getElementById('userRole').textContent = currentUser.role;
-  const av = document.getElementById('userAvatar');
-  av.textContent = currentUser.name[0];
-  av.style.background = currentUser.role === 'admin' ? 'var(--yellow)' : 'var(--blue)';
-  buildNav(); navigate('overview');
+// ── Clients ──
+async function renderClients(){const el=document.getElementById('mainContent');el.innerHTML=ldr();const d=await fd('clients');const f=flt(d,srch.clients,['name','businessName','industry','serviceType','location','status']);
+  el.innerHTML=`<div class="section-hdr"><div><h2>Clients</h2><div class="sub">${d.length} clients</div></div></div>${sb('clients','Search clients...')}
+    <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th><th>Location</th></tr></thead>
+    <tbody>${f.length?f.map(c=>`<tr class="clickable" onclick="showClient('${sr(c)}')"><td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td><td style="max-width:180px">${esc(c.serviceType)}</td><td>${bdg(c.status)}</td><td style="white-space:nowrap">${$(c.monthlyRetainer)}</td><td>${esc(c.location)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No clients</td></tr>'}</tbody></table></div></div>`;}
+function showClient(id){const c=gr(id);if(!c)return;openPanel(c.name,fr('Business Name',c.businessName||c.name)+fr('Industry',c.industry)+fb('Status',c.status)+fr('Services',c.serviceType)+fr('Contact',c.contactName)+fr('Email',c.email)+fr('Phone',c.phone)+fr('Website',c.website)+fr('Location',c.location)+fr('Monthly Retainer',c.monthlyRetainer?$(c.monthlyRetainer)+' AUD':null)+fr('Start Date',c.startDate)+fr('Brand Voice',c.brandVoice)+fr('Compliance Notes',c.complianceNotes)+(user.role==='admin'?'<div class="edit-actions"><button class="btn btn-sm" onclick="editClient(\''+c.id+'\')">Edit</button><button class="btn btn-sm btn-danger" onclick="confirmDel(\''+c.id+'\',\'clients\')">Delete</button></div>':''));}
+function editClient(id){const c=gr(id);if(!c)return;const st=['Lead','Onboarding','Active','Paused','Churned'];document.getElementById('panelBody').innerHTML=`<div class="edit-row"><label>Business Name</label><input id="e_bn" value="${esc(c.businessName||c.name)}"></div><div class="edit-row"><label>Status</label><select id="e_st">${st.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div><div class="edit-row"><label>Location</label><input id="e_loc" value="${esc(c.location)}"></div><div class="edit-row"><label>Monthly Retainer (AUD)</label><input type="number" id="e_ret" value="${c.monthlyRetainer||''}"></div><div class="edit-row"><label>Brand Voice</label><textarea id="e_bv" rows="3">${esc(c.brandVoice)}</textarea></div><div class="edit-actions"><button class="btn btn-sm" onclick="closePanel()">Cancel</button><button class="btn btn-sm btn-save" onclick="saveClient('${id}')">Save</button></div>`;}
+async function saveClient(id){const p={'Business Name':{type:'text',value:document.getElementById('e_bn').value},'Status':{type:'select',value:document.getElementById('e_st').value},'Location':{type:'text',value:document.getElementById('e_loc').value},'Monthly Retainer':{type:'number',value:parseFloat(document.getElementById('e_ret').value)||null},'Brand Voice':{type:'rich_text',value:document.getElementById('e_bv').value}};const r=await updateNotion(id,p);if(r.success){cache.clients=null;closePanel();render();toast('Client updated');}else toast('Update failed',false);}
+
+// ── Campaigns ──
+async function renderCampaigns(){const el=document.getElementById('mainContent');el.innerHTML=ldr();const d=await fd('campaigns');const f=flt(d,srch.campaigns,['name','objective','status','campaignType']);
+  el.innerHTML=`<div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">${d.length} campaigns</div></div></div>${sb('campaigns','Search campaigns...')}
+    <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Campaign</th><th>Objective</th><th>Type</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead>
+    <tbody>${f.length?f.map(c=>`<tr class="clickable" onclick="showCampaign('${sr(c)}')"><td class="cell-name">${esc(c.name)}</td><td>${esc(c.objective)}</td><td>${esc(c.campaignType)}</td><td>${bdg(c.status)}</td><td style="white-space:nowrap">${$(c.totalBudget)}</td><td style="white-space:nowrap">${$(c.totalSpend)}</td><td>${n(c.totalConversions)}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">No campaigns</td></tr>'}</tbody></table></div></div>`;}
+function showCampaign(id){const c=gr(id);if(!c)return;openPanel(c.name,fr('Objective',c.objective)+fr('Campaign Type',c.campaignType)+fb('Status',c.status)+fr('Special Offer',c.specialOffer)+'<div class="metrics-grid" style="grid-template-columns:1fr 1fr">'+mc('Budget',$(c.totalBudget))+mc('Spent',$(c.totalSpend))+mc('Conversions',n(c.totalConversions))+mc('ROAS',c.totalSpend&&c.totalConversions?(c.totalConversions/c.totalSpend*100).toFixed(1)+'x':'—')+'</div>'+fr('Start Date',c.startDate)+fr('End Date',c.endDate)+'<div class="edit-actions"><button class="btn btn-sm" onclick="editCampaign(\''+c.id+'\')">Edit</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" onclick="confirmDel(\''+c.id+'\',\'campaigns\')">Delete</button>':'')+'</div>');}
+function editCampaign(id){const c=gr(id);if(!c)return;const st=['Planning','Live','Paused','Completed'];document.getElementById('panelBody').innerHTML=`<div class="edit-row"><label>Status</label><select id="e_st">${st.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div><div class="edit-row"><label>Total Budget</label><input type="number" id="e_b" value="${c.totalBudget||''}"></div><div class="edit-row"><label>Total Spend</label><input type="number" id="e_s" value="${c.totalSpend||''}"></div><div class="edit-row"><label>Total Conversions</label><input type="number" id="e_c" value="${c.totalConversions||''}"></div><div class="edit-actions"><button class="btn btn-sm" onclick="closePanel()">Cancel</button><button class="btn btn-sm btn-save" onclick="saveCampaign('${id}')">Save</button></div>`;}
+async function saveCampaign(id){const p={'Status':{type:'select',value:document.getElementById('e_st').value},'Total Budget':{type:'number',value:parseFloat(document.getElementById('e_b').value)||null},'Results \u2014 Total Spend':{type:'number',value:parseFloat(document.getElementById('e_s').value)||null},'Results \u2014 Total Conversions':{type:'number',value:parseFloat(document.getElementById('e_c').value)||null}};const r=await updateNotion(id,p);if(r.success){cache.campaigns=null;closePanel();render();toast('Campaign updated');}else toast('Update failed',false);}
+
+// ── Ad Sets ──
+async function renderAdSets(){const el=document.getElementById('mainContent');el.innerHTML=ldr();const d=await fd('adsets');const f=flt(d,srch.adsets,['name','funnelStage','audienceType','status','location']);
+  el.innerHTML=`<div class="section-hdr"><div><h2>Ad Sets</h2><div class="sub">${d.length} ad sets</div></div></div>${sb('adsets','Search ad sets...')}
+    <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Set</th><th>Funnel</th><th>Audience</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead>
+    <tbody>${f.length?f.map(a=>`<tr class="clickable" onclick="showAdSet('${sr(a)}')"><td class="cell-name" style="max-width:240px">${esc(a.name)}</td><td>${esc(a.funnelStage)}</td><td>${esc(a.audienceType)}</td><td>${bdg(a.status)}</td><td style="white-space:nowrap">${$(a.dailyBudget)}</td><td>${pct(a.ctr)}</td><td>${$(a.cpa)}</td><td>${n(a.conversions)}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">No ad sets</td></tr>'}</tbody></table></div></div>`;}
+function showAdSet(id){const a=gr(id);if(!a)return;openPanel(a.name,fr('Funnel Stage',a.funnelStage)+fr('Awareness Level',a.awarenessLevel)+fb('Status',a.status)+fr('Audience Type',a.audienceType)+fr('Audience Description',a.audienceDescription)+fr('Location',a.location)+fr('Age / Gender',(a.ageRange||'—')+' / '+(a.gender||'All'))+fr('Platform',a.platform)+fr('Placement',a.placement)+fr('Bid Strategy',a.bidStrategy)+'<div class="metrics-grid" style="grid-template-columns:1fr 1fr">'+mc('Daily Budget',$(a.dailyBudget))+mc('Spend',$(a.spend))+mc('Impressions',n(a.impressions))+mc('Reach',n(a.reach))+mc('Clicks',n(a.clicks))+mc('CTR',pct(a.ctr))+mc('CPA',$(a.cpa))+mc('ROAS',a.roas?a.roas+'x':'—')+mc('CPM',$(a.cpm))+mc('Conversions',n(a.conversions))+'</div><div class="edit-actions"><button class="btn btn-sm" onclick="editAdSet(\''+a.id+'\')">Edit Performance</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" onclick="confirmDel(\''+a.id+'\',\'adsets\')">Delete</button>':'')+'</div>');}
+function editAdSet(id){const a=gr(id);if(!a)return;const st=['Draft','Live','Paused','Completed','Killed'];document.getElementById('panelBody').innerHTML=`<div class="edit-row"><label>Status</label><select id="e_st">${st.map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}</select></div><div class="edit-row"><label>Daily Budget</label><input type="number" id="e_b" value="${a.dailyBudget||''}" step="0.01"></div><div class="edit-row"><label>Spend</label><input type="number" id="e_sp" value="${a.spend||''}" step="0.01"></div><div class="edit-row"><label>Impressions</label><input type="number" id="e_im" value="${a.impressions||''}"></div><div class="edit-row"><label>Reach</label><input type="number" id="e_re" value="${a.reach||''}"></div><div class="edit-row"><label>Clicks</label><input type="number" id="e_cl" value="${a.clicks||''}"></div><div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ct" value="${a.ctr||''}" step="0.01"></div><div class="edit-row"><label>Conversions</label><input type="number" id="e_cv" value="${a.conversions||''}"></div><div class="edit-row"><label>CPL/CPA</label><input type="number" id="e_cp" value="${a.cpa||''}" step="0.01"></div><div class="edit-row"><label>ROAS</label><input type="number" id="e_ro" value="${a.roas||''}" step="0.01"></div><div class="edit-row"><label>CPM</label><input type="number" id="e_cm" value="${a.cpm||''}" step="0.01"></div><div class="edit-actions"><button class="btn btn-sm" onclick="closePanel()">Cancel</button><button class="btn btn-sm btn-save" onclick="saveAdSet('${id}')">Save</button></div>`;}
+async function saveAdSet(id){const gv=i=>{const v=document.getElementById(i).value;return v!==''?parseFloat(v):null;};const p={'Status':{type:'select',value:document.getElementById('e_st').value},'Daily Budget':{type:'number',value:gv('e_b')},'Results \u2014 Spend':{type:'number',value:gv('e_sp')},'Results \u2014 Impressions':{type:'number',value:gv('e_im')},'Results \u2014 Reach':{type:'number',value:gv('e_re')},'Results \u2014 Clicks':{type:'number',value:gv('e_cl')},'Results \u2014 CTR':{type:'number',value:gv('e_ct')},'Results \u2014 Conversions':{type:'number',value:gv('e_cv')},'Results \u2014 CPL/CPA':{type:'number',value:gv('e_cp')},'Results \u2014 ROAS':{type:'number',value:gv('e_ro')},'Results \u2014 CPM':{type:'number',value:gv('e_cm')}};const r=await updateNotion(id,p);if(r.success){cache.adsets=null;closePanel();render();toast('Ad set updated');}else toast('Update failed',false);}
+
+// ── Ad Copy ──
+async function renderAdCopy(){const el=document.getElementById('mainContent');el.innerHTML=ldr();const d=await fd('adcopy');const f=flt(d,srch.adcopy,['name','reference','angle','headline','status','hook']);
+  el.innerHTML=`<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">${d.length} ad variations</div></div></div>${sb('adcopy','Search by reference, angle, headline...')}
+    <div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Angle</th><th>Headline</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th></tr></thead>
+    <tbody>${f.length?f.map(a=>`<tr class="clickable" onclick="showAdCopy('${sr(a)}')"><td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td><td style="max-width:180px">${esc(a.headline)}</td><td>${bdg(a.status)}</td><td>${pct(a.ctr)}</td><td>${$(a.cpa)}</td><td>${a.roas?a.roas+'x':'—'}</td><td>${n(a.conversions)}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">No ads</td></tr>'}</tbody></table></div></div>`;}
+
+function showAdCopy(id){
+  const a=gr(id);if(!a)return;
+  const preview=esc((a.hook||'')+(a.hook&&a.primaryText?'\n\n':'')+(a.primaryText||''));
+  // Build HTML using string concat — no template literals with user data
+  let h=fr('Reference',a.reference)+fr('Angle',a.angle)+fb('Status',a.status);
+  if(a.isWinner)h+='<div style="margin-bottom:14px"><span class="badge badge-green" style="font-size:12px;padding:5px 14px">★ Winner</span></div>';
+  h+='<div class="ad-preview"><div class="label">Ad Preview</div><div class="body">'+preview+'</div><div class="below"><div class="hl">'+esc(a.headline)+'</div><div class="desc">'+esc(a.description)+'</div>'+(a.ctaButton?'<span class="cta-tag">'+esc(a.ctaButton)+'</span>':'')+'</div></div>';
+  h+=fr('Image Ref',a.imageRef)+fr('Hook Code',a.hookCode)+fr('Body Code',a.bodyCode)+fr('Headline Code',a.headlineCode)+fr('Testing Group',a.testingGroup);
+  h+='<div class="metrics-grid" style="grid-template-columns:1fr 1fr">'+mc('CTR',pct(a.ctr))+mc('CPA',$(a.cpa))+mc('ROAS',a.roas?a.roas+'x':'—')+mc('Conversions',n(a.conversions))+'</div>';
+  h+=fr('UTM Campaign',a.utmCampaign)+fr('UTM Content',a.utmContent)+fr('UTM Term',a.utmTerm);
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="btnEditAC">Edit Performance</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="btnDelAC">Delete</button>':'')+'</div>';
+  openPanel(a.name||'Ad Copy',h);
+  // Bind via JS — avoids any ID/quote issues in onclick attributes
+  document.getElementById('btnEditAC').addEventListener('click',function(){editAdCopy(a.id);});
+  const del=document.getElementById('btnDelAC');
+  if(del)del.addEventListener('click',function(){confirmDel(a.id,'adcopy');});
 }
 
-function buildNav() {
-  const nav = document.getElementById('sidebarNav');
-  nav.innerHTML = SECTIONS.map(s =>
-    `<button class="nav-btn${s.id===activeSection?' active':''}" onclick="navigate('${s.id}')"><span class="icon">${s.icon}</span><span class="nav-label">${s.label}</span></button>`
-  ).join('');
+function editAdCopy(id){
+  const a=gr(id);if(!a)return;
+  const st=['Draft','In Review','Approved','Live','Paused','Killed'];
+  document.getElementById('panelBody').innerHTML=
+    '<div class="edit-row"><label>Status</label><select id="e_st">'+st.map(function(s){return'<option'+(a.status===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select></div>'+
+    '<div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ct" value="'+(a.ctr||'')+'" step="0.01"></div>'+
+    '<div class="edit-row"><label>CPA/CPL (AUD)</label><input type="number" id="e_cp" value="'+(a.cpa||'')+'" step="0.01"></div>'+
+    '<div class="edit-row"><label>ROAS</label><input type="number" id="e_ro" value="'+(a.roas||'')+'" step="0.01"></div>'+
+    '<div class="edit-row"><label>Conversions</label><input type="number" id="e_cv" value="'+(a.conversions||'')+'"></div>'+
+    '<div class="edit-row"><label>Is Winner</label><select id="e_win"><option value="false"'+(!a.isWinner?' selected':'')+'>No</option><option value="true"'+(a.isWinner?' selected':'')+'>Yes</option></select></div>'+
+    '<div class="edit-actions"><button class="btn btn-sm" onclick="closePanel()">Cancel</button><button class="btn btn-sm btn-save" id="btnSaveAC">Save</button></div>';
+  document.getElementById('btnSaveAC').addEventListener('click',function(){saveAdCopy(id);});
 }
 
-function navigate(section) {
-  activeSection = section; buildNav(); renderSection();
-}
-
-// ═══════════════════════════════════════
-// DATA FETCHING
-// ═══════════════════════════════════════
-async function fetchData(type) {
-  if (cache[type]) return cache[type];
-  try {
-    const res = await fetch(ENDPOINTS[type]);
-    const data = await res.json();
-    cache[type] = Array.isArray(data) ? data : [];
-    return cache[type];
-  } catch(e) { console.error('Fetch error:', type, e); return []; }
-}
-
-async function updateNotion(pageId, properties) {
-  try {
-    const res = await fetch(ENDPOINTS.update, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ pageId, properties })
-    });
-    return await res.json();
-  } catch(e) { console.error('Update error:', e); return { error: e.message }; }
-}
-
-async function deleteNotion(pageId) {
-  try {
-    const res = await fetch(ENDPOINTS.del, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ pageId })
-    });
-    return await res.json();
-  } catch(e) { console.error('Delete error:', e); return { error: e.message }; }
-}
-
-// ═══════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════
-function badge(status) {
-  if (!status) return '<span class="badge badge-dim"><span class="dot"></span>—</span>';
-  const cls = STATUS_MAP[status] || 'gray';
-  return `<span class="badge badge-${cls}"><span class="dot"></span>${status}</span>`;
-}
-function money(v) { return v != null ? '$' + Number(v).toLocaleString() : '—'; }
-function pct(v) { return v != null ? v + '%' : '—'; }
-function num(v) { return v != null ? Number(v).toLocaleString() : '—'; }
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-function metricCard(label, val, sub) {
-  return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-val">${val}</div>${sub?'<div class="metric-sub">'+sub+'</div>':''}</div>`;
-}
-function fieldRow(label, val) { return `<div class="field"><div class="field-label">${label}</div><div class="field-val">${esc(val) || '—'}</div></div>`; }
-function fieldBadge(label, status) { return `<div class="field"><div class="field-label">${label}</div><div class="field-val">${badge(status)}</div></div>`; }
-function loader() { return '<div class="loader-wrap"><div class="spinner"></div><div class="loader-text">Loading from Notion...</div></div>'; }
-function searchBar(type, placeholder) {
-  return `<div class="search-bar"><input type="text" placeholder="${placeholder}" value="${esc(searchTerms[type])}" oninput="searchTerms['${type}']=this.value;renderSection()"></div>`;
-}
-function filterData(data, term, keys) {
-  if (!term) return data;
-  const t = term.toLowerCase();
-  return data.filter(d => keys.some(k => (d[k]||'').toString().toLowerCase().includes(t)));
-}
-
-// ═══════════════════════════════════════
-// OVERVIEW SECTION
-// ═══════════════════════════════════════
-async function renderOverview() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = '<div class="section-hdr"><div><h2>Overview</h2><div class="sub">Your Meta Ads management at a glance</div></div></div>' + loader();
-
-  const [clients, campaigns, adsets, adcopy] = await Promise.all([
-    fetchData('clients'), fetchData('campaigns'), fetchData('adsets'), fetchData('adcopy')
-  ]);
-
-  const activeClients = clients.filter(c => c.status === 'Active').length;
-  const liveCampaigns = campaigns.filter(c => c.status === 'Live').length;
-  const liveAdSets = adsets.filter(a => a.status === 'Live').length;
-  const totalAds = adcopy.length;
-  const totalSpend = campaigns.reduce((s, c) => s + (c.totalSpend || 0), 0);
-  const totalConv = campaigns.reduce((s, c) => s + (c.totalConversions || 0), 0);
-  const avgCTR = adcopy.filter(a => a.ctr).length > 0
-    ? (adcopy.filter(a => a.ctr).reduce((s, a) => s + a.ctr, 0) / adcopy.filter(a => a.ctr).length).toFixed(2)
-    : '—';
-  const topAds = adcopy.filter(a => a.ctr).sort((a, b) => (b.ctr||0) - (a.ctr||0)).slice(0, 5);
-
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Overview</h2><div class="sub">Your Meta Ads management at a glance</div></div>
-      <button class="btn btn-sm" onclick="cache={clients:null,campaigns:null,adsets:null,adcopy:null};renderSection()">↻ Refresh</button>
-    </div>
-    <div class="metrics-grid">
-      ${metricCard('Active Clients', activeClients, clients.length + ' total')}
-      ${metricCard('Live Campaigns', liveCampaigns, campaigns.length + ' total')}
-      ${metricCard('Live Ad Sets', liveAdSets, adsets.length + ' total')}
-      ${metricCard('Total Ads', totalAds, adcopy.filter(a=>a.status==='Live').length + ' live')}
-      ${metricCard('Total Spend', money(totalSpend), 'Across all campaigns')}
-      ${metricCard('Conversions', num(totalConv))}
-      ${metricCard('Avg CTR', avgCTR !== '—' ? avgCTR + '%' : '—', 'Across all ads')}
-    </div>
-    ${topAds.length ? `
-    <div style="margin-top:24px">
-      <h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px">Top Performing Ads</h3>
-      <div class="table-wrap"><div class="table-scroll"><table>
-        <thead><tr><th>Reference</th><th>Angle</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th><th>Status</th></tr></thead>
-        <tbody>${topAds.map(a => `<tr class="clickable" onclick="navigate('adcopy')">
-          <td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td>
-          <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td><td>${a.roas ? a.roas+'x':'—'}</td>
-          <td>${num(a.conversions)}</td><td>${badge(a.status)}</td>
-        </tr>`).join('')}</tbody>
-      </table></div></div>
-    </div>` : ''}
-    <div style="margin-top:24px">
-      <h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px">Recent Clients</h3>
-      <div class="table-wrap"><div class="table-scroll"><table>
-        <thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th></tr></thead>
-        <tbody>${clients.slice(0,5).map(c => `<tr class="clickable" onclick="navigate('clients')">
-          <td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td>
-          <td>${esc(c.serviceType)}</td><td>${badge(c.status)}</td><td>${money(c.monthlyRetainer)}</td>
-        </tr>`).join('')}</tbody>
-      </table></div></div>
-    </div>`;
-}
-
-// ═══════════════════════════════════════
-// CLIENTS SECTION
-// ═══════════════════════════════════════
-async function renderClients() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = '<div class="section-hdr"><div><h2>Clients</h2></div></div>' + loader();
-  const data = await fetchData('clients');
-  const filtered = filterData(data, searchTerms.clients, ['name','businessName','industry','serviceType','location','status']);
-
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Clients</h2><div class="sub">${data.length} clients in your workspace</div></div></div>
-    ${searchBar('clients','Search clients...')}
-    <div class="table-wrap"><div class="table-scroll"><table>
-      <thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th><th>Location</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick="openClientPanel('${storeRow(c)}')">
-        <td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td>
-        <td style="max-width:180px">${esc(c.serviceType)}</td><td>${badge(c.status)}</td>
-        <td style="white-space:nowrap">${money(c.monthlyRetainer)}</td><td>${esc(c.location)}</td>
-      </tr>`).join('') : '<tr><td colspan="6" class="empty">No clients found</td></tr>'}</tbody>
-    </table></div></div>`;
-}
-
-function openClientPanel(idOrObj) {
-  const c = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
-  if (!c) return;
-  openPanel(c.name || 'Client', `
-    ${fieldRow('Business Name', c.businessName || c.name)}
-    ${fieldRow('Industry', c.industry)}
-    ${fieldBadge('Status', c.status)}
-    ${fieldRow('Services', c.serviceType)}
-    ${fieldRow('Contact', c.contactName)}
-    ${fieldRow('Email', c.email)}
-    ${fieldRow('Phone', c.phone)}
-    ${fieldRow('Website', c.website)}
-    ${fieldRow('Location', c.location)}
-    ${fieldRow('Monthly Retainer', c.monthlyRetainer ? money(c.monthlyRetainer) + ' AUD' : null)}
-    ${fieldRow('Start Date', c.startDate)}
-    ${fieldRow('Brand Voice', c.brandVoice)}
-    ${fieldRow('Compliance Notes', c.complianceNotes)}
-    ${currentUser.role === 'admin' ? `
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="editClient('${c.id}')">Edit</button>
-      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${c.id}','clients')">Delete</button>
-    </div>` : ''}
-  `);
-}
-
-function editClient(id) {
-  const c = (cache.clients||[]).find(x => x.id === id);
-  if (!c) return;
-  const statuses = ['Lead','Onboarding','Active','Paused','Churned'];
-  document.getElementById('panelBody').innerHTML = `
-    <div class="edit-row"><label>Business Name</label><input id="e_bname" value="${esc(c.businessName||c.name)}"></div>
-    <div class="edit-row"><label>Industry</label><input id="e_industry" value="${esc(c.industry)}"></div>
-    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="edit-row"><label>Location</label><input id="e_location" value="${esc(c.location)}"></div>
-    <div class="edit-row"><label>Monthly Retainer (AUD)</label><input type="number" id="e_retainer" value="${c.monthlyRetainer||''}"></div>
-    <div class="edit-row"><label>Brand Voice</label><textarea id="e_voice" rows="3">${esc(c.brandVoice)}</textarea></div>
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
-      <button class="btn btn-sm btn-save" onclick="saveClient('${id}')">Save Changes</button>
-    </div>`;
-}
-
-async function saveClient(id) {
-  const props = {
-    'Business Name': { type:'text', value: document.getElementById('e_bname').value },
-    'Status': { type:'select', value: document.getElementById('e_status').value },
-    'Location': { type:'text', value: document.getElementById('e_location').value },
-    'Monthly Retainer': { type:'number', value: parseFloat(document.getElementById('e_retainer').value) || null },
-    'Brand Voice': { type:'rich_text', value: document.getElementById('e_voice').value },
+async function saveAdCopy(id){
+  const gv=function(i){const v=document.getElementById(i).value;return v!==''?parseFloat(v):null;};
+  const p={
+    'Status':{type:'select',value:document.getElementById('e_st').value},
+    'Results \u2014 CTR':{type:'number',value:gv('e_ct')},
+    'Results \u2014 CPA/CPL':{type:'number',value:gv('e_cp')},
+    'Results \u2014 ROAS':{type:'number',value:gv('e_ro')},
+    'Results \u2014 Conversions':{type:'number',value:gv('e_cv')},
+    'Is Winner':{type:'checkbox',value:document.getElementById('e_win').value==='true'},
   };
-  const result = await updateNotion(id, props);
-  if (result.success) { cache.clients = null; closePanel(); renderSection(); }
-  else alert('Update failed — check console');
+  const btn=document.getElementById('btnSaveAC');
+  btn.textContent='Saving...';btn.disabled=true;
+  const r=await updateNotion(id,p);
+  if(r.success){cache.adcopy=null;closePanel();render();toast('Ad copy updated');}
+  else{toast('Update failed',false);btn.textContent='Save';btn.disabled=false;}
 }
 
-// ═══════════════════════════════════════
-// CAMPAIGNS SECTION
-// ═══════════════════════════════════════
-async function renderCampaigns() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = '<div class="section-hdr"><div><h2>Campaigns</h2></div></div>' + loader();
-  const data = await fetchData('campaigns');
-  const filtered = filterData(data, searchTerms.campaigns, ['name','objective','status','campaignType']);
+// ── Performance Bulk ──
+function renderPerformance(){document.getElementById('mainContent').innerHTML=`<div class="section-hdr"><div><h2>Performance Update</h2><div class="sub">Bulk update from Ads Manager</div></div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.03)">
+      <p style="font-size:13px;color:var(--text-m);margin-bottom:16px;line-height:1.6">Paste data — one line per ad or ad set:<br><code style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px">Reference: CTR X%, CPA $X, ROAS Xx, Conv X, Spend $X</code></p>
+      <textarea class="perf-input" id="perfInput" placeholder="1001 | H01B01H01: CTR 3.2%, CPA $12, ROAS 4.5x, Conv 47, Spend $560"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center"><button class="btn btn-primary" onclick="runBulk()" id="perfBtn">Update Notion</button><span id="perfSt" style="font-size:12px;color:var(--text-m)"></span></div>
+      <div id="perfRes"></div></div>`;}
+async function runBulk(){const input=document.getElementById('perfInput').value.trim();if(!input)return;const btn=document.getElementById('perfBtn'),st=document.getElementById('perfSt'),resEl=document.getElementById('perfRes');btn.disabled=true;btn.textContent='Updating...';st.textContent='';
+  const lines=input.split('\n').filter(function(l){return l.trim();}),results=[];const adcopy=await fd('adcopy'),adsets=await fd('adsets');
+  for(let i=0;i<lines.length;i++){const line=lines[i];const ci=line.indexOf(':');if(ci===-1){results.push({line:line,status:'skipped'});continue;}
+    const ref=line.substring(0,ci).trim(),ds=line.substring(ci+1).trim();
+    const ex=function(p){const m=ds.match(p);return m?parseFloat(m[1].replace(/,/g,'')):null;};
+    const ctr=ex(/CTR\s*([\d.]+)%/i),cpa=ex(/CPA?\s*\$?([\d.]+)/i),roas=ex(/ROAS\s*([\d.]+)/i),conv=ex(/Conv(?:ersions?)?\s*([\d,]+)/i),spend=ex(/Spend\s*\$?([\d,.]+)/i),imp=ex(/Imp(?:ressions?)?\s*([\d,]+)/i),clicks=ex(/Clicks?\s*([\d,]+)/i),cpm=ex(/CPM\s*\$?([\d.]+)/i);
+    let m=adcopy.find(function(a){return a.name===ref||a.reference===ref;});
+    if(m){const p={};if(ctr!=null)p['Results \u2014 CTR']={type:'number',value:ctr};if(cpa!=null)p['Results \u2014 CPA/CPL']={type:'number',value:cpa};if(roas!=null)p['Results \u2014 ROAS']={type:'number',value:roas};if(conv!=null)p['Results \u2014 Conversions']={type:'number',value:conv};st.textContent='Updating '+ref+'...';const r=await updateNotion(m.id,p);results.push({line:ref,status:r.success?'updated':'failed',type:'Ad Copy',cnt:Object.keys(p).length});continue;}
+    m=adsets.find(function(a){return a.name===ref;});
+    if(m){const p={};if(spend!=null)p['Results \u2014 Spend']={type:'number',value:spend};if(imp!=null)p['Results \u2014 Impressions']={type:'number',value:imp};if(clicks!=null)p['Results \u2014 Clicks']={type:'number',value:clicks};if(ctr!=null)p['Results \u2014 CTR']={type:'number',value:ctr};if(conv!=null)p['Results \u2014 Conversions']={type:'number',value:conv};if(cpa!=null)p['Results \u2014 CPL/CPA']={type:'number',value:cpa};if(roas!=null)p['Results \u2014 ROAS']={type:'number',value:roas};if(cpm!=null)p['Results \u2014 CPM']={type:'number',value:cpm};st.textContent='Updating '+ref+'...';const r=await updateNotion(m.id,p);results.push({line:ref,status:r.success?'updated':'failed',type:'Ad Set',cnt:Object.keys(p).length});continue;}
+    results.push({line:ref,status:'not_found'});}
+  btn.disabled=false;btn.textContent='Update Notion';const u=results.filter(function(r){return r.status==='updated';}).length,nf=results.filter(function(r){return r.status==='not_found';}).length,fl=results.filter(function(r){return r.status==='failed';}).length;
+  st.textContent='Done \u2014 '+u+' updated, '+nf+' not found, '+fl+' failed';
+  resEl.innerHTML='<div class="result-box"><div class="rlabel">Results</div><pre>'+results.map(function(r){const ic=r.status==='updated'?'\u2713':r.status==='not_found'?'?':'\u2717';const co=r.status==='updated'?'var(--green)':r.status==='not_found'?'var(--orange)':'var(--red)';return'<span style="color:'+co+'">'+ic+'</span> '+esc(r.line)+' \u2014 '+r.status+(r.type?' ('+r.type+')':'')+(r.cnt?' ['+r.cnt+' fields]':'');}).join('\n')+'</pre></div>';
+  cache.adcopy=null;cache.adsets=null;cache.campaigns=null;}
 
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">${data.length} campaigns</div></div></div>
-    ${searchBar('campaigns','Search campaigns...')}
-    <div class="table-wrap"><div class="table-scroll"><table>
-      <thead><tr><th>Campaign</th><th>Objective</th><th>Type</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick="openCampaignPanel('${storeRow(c)}')">
-        <td class="cell-name">${esc(c.name)}</td><td>${esc(c.objective)}</td>
-        <td>${esc(c.campaignType)}</td><td>${badge(c.status)}</td>
-        <td style="white-space:nowrap">${money(c.totalBudget)}</td>
-        <td style="white-space:nowrap">${money(c.totalSpend)}</td>
-        <td>${num(c.totalConversions)}</td>
-      </tr>`).join('') : '<tr><td colspan="7" class="empty">No campaigns found</td></tr>'}</tbody>
-    </table></div></div>`;
-}
+// ── Delete ──
+async function confirmDel(id,type){if(user.role!=='admin')return toast('Admin required',false);if(!confirm('Archive this in Notion?'))return;const r=await delNotion(id);if(r.success||r.archived){cache[type]=null;closePanel();render();toast('Deleted');}else toast('Delete failed',false);}
 
-function openCampaignPanel(idOrObj) {
-  const c = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
-  if (!c) return;
-  const roas = (c.totalSpend && c.totalConversions) ? (c.totalConversions / c.totalSpend * 100).toFixed(1) + 'x' : '—';
-  openPanel(c.name || 'Campaign', `
-    ${fieldRow('Objective', c.objective)}
-    ${fieldRow('Campaign Type', c.campaignType)}
-    ${fieldBadge('Status', c.status)}
-    ${fieldRow('Special Offer', c.specialOffer)}
-    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
-      ${metricCard('Budget', money(c.totalBudget))}
-      ${metricCard('Spent', money(c.totalSpend))}
-      ${metricCard('Conversions', num(c.totalConversions))}
-      ${metricCard('ROAS', roas)}
-    </div>
-    ${fieldRow('Start Date', c.startDate)}
-    ${fieldRow('End Date', c.endDate)}
-    ${currentUser.role === 'admin' ? `
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
-      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${c.id}','campaigns')">Delete</button>
-    </div>` : ''}
-  `);
-}
-
-function editCampaign(id) {
-  const c = (cache.campaigns||[]).find(x => x.id === id);
-  if (!c) return;
-  const statuses = ['Planning','Live','Paused','Completed'];
-  document.getElementById('panelBody').innerHTML = `
-    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="edit-row"><label>Total Budget (AUD)</label><input type="number" id="e_budget" value="${c.totalBudget||''}"></div>
-    <div class="edit-row"><label>Total Spend</label><input type="number" id="e_spend" value="${c.totalSpend||''}"></div>
-    <div class="edit-row"><label>Total Conversions</label><input type="number" id="e_conv" value="${c.totalConversions||''}"></div>
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
-      <button class="btn btn-sm btn-save" onclick="saveCampaign('${id}')">Save Changes</button>
-    </div>`;
-}
-
-async function saveCampaign(id) {
-  const props = {
-    'Status': { type:'select', value: document.getElementById('e_status').value },
-    'Total Budget': { type:'number', value: parseFloat(document.getElementById('e_budget').value) || null },
-    'Results — Total Spend': { type:'number', value: parseFloat(document.getElementById('e_spend').value) || null },
-    'Results — Total Conversions': { type:'number', value: parseFloat(document.getElementById('e_conv').value) || null },
-  };
-  const result = await updateNotion(id, props);
-  if (result.success) { cache.campaigns = null; closePanel(); renderSection(); }
-  else alert('Update failed');
-}
-
-// ═══════════════════════════════════════
-// AD SETS SECTION
-// ═══════════════════════════════════════
-async function renderAdSets() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = '<div class="section-hdr"><div><h2>Ad Sets</h2></div></div>' + loader();
-  const data = await fetchData('adsets');
-  const filtered = filterData(data, searchTerms.adsets, ['name','funnelStage','audienceType','status','location']);
-
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Ad Sets</h2><div class="sub">${data.length} ad sets across all campaigns</div></div></div>
-    ${searchBar('adsets','Search ad sets...')}
-    <div class="table-wrap"><div class="table-scroll"><table>
-      <thead><tr><th>Ad Set</th><th>Funnel</th><th>Audience</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick="openAdSetPanel('${storeRow(a)}')">
-        <td class="cell-name" style="max-width:240px">${esc(a.name)}</td>
-        <td>${esc(a.funnelStage)}</td><td>${esc(a.audienceType)}</td>
-        <td>${badge(a.status)}</td><td style="white-space:nowrap">${money(a.dailyBudget)}</td>
-        <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td><td>${num(a.conversions)}</td>
-      </tr>`).join('') : '<tr><td colspan="8" class="empty">No ad sets found</td></tr>'}</tbody>
-    </table></div></div>`;
-}
-
-function openAdSetPanel(idOrObj) {
-  const a = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
-  if (!a) return;
-  openPanel(a.name || 'Ad Set', `
-    ${fieldRow('Funnel Stage', a.funnelStage)}
-    ${fieldRow('Awareness Level', a.awarenessLevel)}
-    ${fieldBadge('Status', a.status)}
-    ${fieldRow('Audience Type', a.audienceType)}
-    ${fieldRow('Audience Description', a.audienceDescription)}
-    ${fieldRow('Location', a.location)}
-    ${fieldRow('Age Range', a.ageRange)}
-    ${fieldRow('Gender', a.gender)}
-    ${fieldRow('Platform', a.platform)}
-    ${fieldRow('Placement', a.placement)}
-    ${fieldRow('Bid Strategy', a.bidStrategy)}
-    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
-      ${metricCard('Daily Budget', money(a.dailyBudget))}
-      ${metricCard('Spend', money(a.spend))}
-      ${metricCard('Impressions', num(a.impressions))}
-      ${metricCard('Reach', num(a.reach))}
-      ${metricCard('Clicks', num(a.clicks))}
-      ${metricCard('CTR', pct(a.ctr))}
-      ${metricCard('CPA', money(a.cpa))}
-      ${metricCard('ROAS', a.roas ? a.roas + 'x' : '—')}
-      ${metricCard('CPM', money(a.cpm))}
-      ${metricCard('Conversions', num(a.conversions))}
-    </div>
-    ${currentUser.role === 'admin' ? `
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="editAdSet('${a.id}')">Edit Performance</button>
-      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}','adsets')">Delete</button>
-    </div>` : `
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="editAdSet('${a.id}')">Edit Performance</button>
-    </div>`}
-  `);
-}
-
-function editAdSet(id) {
-  const a = (cache.adsets||[]).find(x => x.id === id);
-  if (!a) return;
-  const statuses = ['Draft','Live','Paused','Completed','Killed'];
-  document.getElementById('panelBody').innerHTML = `
-    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="edit-row"><label>Daily Budget (AUD)</label><input type="number" id="e_budget" value="${a.dailyBudget||''}" step="0.01"></div>
-    <div class="edit-row"><label>Spend</label><input type="number" id="e_spend" value="${a.spend||''}" step="0.01"></div>
-    <div class="edit-row"><label>Impressions</label><input type="number" id="e_imp" value="${a.impressions||''}"></div>
-    <div class="edit-row"><label>Reach</label><input type="number" id="e_reach" value="${a.reach||''}"></div>
-    <div class="edit-row"><label>Clicks</label><input type="number" id="e_clicks" value="${a.clicks||''}"></div>
-    <div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ctr" value="${a.ctr||''}" step="0.01"></div>
-    <div class="edit-row"><label>Conversions</label><input type="number" id="e_conv" value="${a.conversions||''}"></div>
-    <div class="edit-row"><label>CPL/CPA (AUD)</label><input type="number" id="e_cpa" value="${a.cpa||''}" step="0.01"></div>
-    <div class="edit-row"><label>ROAS</label><input type="number" id="e_roas" value="${a.roas||''}" step="0.01"></div>
-    <div class="edit-row"><label>CPM (AUD)</label><input type="number" id="e_cpm" value="${a.cpm||''}" step="0.01"></div>
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
-      <button class="btn btn-sm btn-save" onclick="saveAdSet('${id}')">Save Changes</button>
-    </div>`;
-}
-
-async function saveAdSet(id) {
-  const gv = (elId) => { const v = document.getElementById(elId).value; return v !== '' ? parseFloat(v) : null; };
-  const props = {
-    'Status': { type:'select', value: document.getElementById('e_status').value },
-    'Daily Budget': { type:'number', value: gv('e_budget') },
-    'Results — Spend': { type:'number', value: gv('e_spend') },
-    'Results — Impressions': { type:'number', value: gv('e_imp') },
-    'Results — Reach': { type:'number', value: gv('e_reach') },
-    'Results — Clicks': { type:'number', value: gv('e_clicks') },
-    'Results — CTR': { type:'number', value: gv('e_ctr') },
-    'Results — Conversions': { type:'number', value: gv('e_conv') },
-    'Results — CPL/CPA': { type:'number', value: gv('e_cpa') },
-    'Results — ROAS': { type:'number', value: gv('e_roas') },
-    'Results — CPM': { type:'number', value: gv('e_cpm') },
-  };
-  const result = await updateNotion(id, props);
-  if (result.success) { cache.adsets = null; closePanel(); renderSection(); }
-  else alert('Update failed');
-}
-
-// ═══════════════════════════════════════
-// AD COPY SECTION
-// ═══════════════════════════════════════
-async function renderAdCopy() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = '<div class="section-hdr"><div><h2>Ad Copy</h2></div></div>' + loader();
-  const data = await fetchData('adcopy');
-  const filtered = filterData(data, searchTerms.adcopy, ['name','reference','angle','headline','status','hook']);
-
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">${data.length} ad variations</div></div></div>
-    ${searchBar('adcopy','Search by reference, angle, headline...')}
-    <div class="table-wrap"><div class="table-scroll"><table>
-      <thead><tr><th>Reference</th><th>Angle</th><th>Headline</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th></tr></thead>
-      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick="openAdCopyPanel('${storeRow(a)}')">
-        <td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td>
-        <td style="max-width:180px">${esc(a.headline)}</td><td>${badge(a.status)}</td>
-        <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td>
-        <td>${a.roas ? a.roas+'x':'—'}</td><td>${num(a.conversions)}</td>
-      </tr>`).join('') : '<tr><td colspan="8" class="empty">No ads found</td></tr>'}</tbody>
-    </table></div></div>`;
-}
-
-function openAdCopyPanel(idOrObj) {
-  const a = typeof idOrObj === 'string' ? rowData[idOrObj] : idOrObj;
-  if (!a) return;
-  const previewBody = (a.hook||'') + (a.hook && a.primaryText ? '\n\n' : '') + (a.primaryText||'');
-  openPanel(a.name || 'Ad Copy', `
-    ${fieldRow('Reference', a.reference)}
-    ${fieldRow('Angle', a.angle)}
-    ${fieldBadge('Status', a.status)}
-    ${a.isWinner ? '<div style="margin-bottom:14px"><span class="badge badge-green" style="font-size:12px;padding:5px 14px">★ Winner</span></div>' : ''}
-    <div class="ad-preview">
-      <div class="label">Ad Preview</div>
-      <div class="body">${esc(previewBody)}</div>
-      <div class="below">
-        <div class="hl">${esc(a.headline)}</div>
-        <div class="desc">${esc(a.description)}</div>
-        ${a.ctaButton ? '<span class="cta-tag">'+esc(a.ctaButton)+'</span>' : ''}
-      </div>
-    </div>
-    ${fieldRow('Image Ref', a.imageRef)}
-    ${fieldRow('Hook Code', a.hookCode)}
-    ${fieldRow('Body Code', a.bodyCode)}
-    ${fieldRow('Headline Code', a.headlineCode)}
-    ${fieldRow('Testing Group', a.testingGroup)}
-    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
-      ${metricCard('CTR', pct(a.ctr))}
-      ${metricCard('CPA', money(a.cpa))}
-      ${metricCard('ROAS', a.roas ? a.roas + 'x' : '—')}
-      ${metricCard('Conversions', num(a.conversions))}
-    </div>
-    ${fieldRow('UTM Campaign', a.utmCampaign)}
-    ${fieldRow('UTM Content', a.utmContent)}
-    ${fieldRow('UTM Term', a.utmTerm)}
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="editAdCopy('${a.id}')">Edit Performance</button>
-      ${currentUser.role === 'admin' ? `<button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}','adcopy')">Delete</button>` : ''}
-    </div>
-  `);
-}
-
-function editAdCopy(id) {
-  const a = (cache.adcopy||[]).find(x => x.id === id);
-  if (!a) return;
-  const statuses = ['Draft','In Review','Approved','Live','Paused','Killed'];
-  document.getElementById('panelBody').innerHTML = `
-    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ctr" value="${a.ctr||''}" step="0.01"></div>
-    <div class="edit-row"><label>CPA/CPL (AUD)</label><input type="number" id="e_cpa" value="${a.cpa||''}" step="0.01"></div>
-    <div class="edit-row"><label>ROAS</label><input type="number" id="e_roas" value="${a.roas||''}" step="0.01"></div>
-    <div class="edit-row"><label>Conversions</label><input type="number" id="e_conv" value="${a.conversions||''}"></div>
-    <div class="edit-row"><label>Is Winner</label><select id="e_winner"><option value="false"${!a.isWinner?' selected':''}>No</option><option value="true"${a.isWinner?' selected':''}>Yes</option></select></div>
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
-      <button class="btn btn-sm btn-save" onclick="saveAdCopy('${id}')">Save Changes</button>
-    </div>`;
-}
-
-async function saveAdCopy(id) {
-  const gv = (elId) => { const v = document.getElementById(elId).value; return v !== '' ? parseFloat(v) : null; };
-  const props = {
-    'Status': { type:'select', value: document.getElementById('e_status').value },
-    'Results — CTR': { type:'number', value: gv('e_ctr') },
-    'Results — CPA/CPL': { type:'number', value: gv('e_cpa') },
-    'Results — ROAS': { type:'number', value: gv('e_roas') },
-    'Results — Conversions': { type:'number', value: gv('e_conv') },
-    'Is Winner': { type:'checkbox', value: document.getElementById('e_winner').value === 'true' },
-  };
-  const result = await updateNotion(id, props);
-  if (result.success) { cache.adcopy = null; closePanel(); renderSection(); }
-  else alert('Update failed');
-}
-
-// ═══════════════════════════════════════
-// PERFORMANCE BULK UPDATE
-// ═══════════════════════════════════════
-function renderPerformance() {
-  const el = document.getElementById('mainContent');
-  el.innerHTML = `
-    <div class="section-hdr"><div><h2>Performance Update</h2><div class="sub">Bulk update performance data from Ads Manager</div></div></div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
-      <p style="font-size:13px;color:var(--text-m);margin-bottom:16px;line-height:1.6">
-        Paste your Ads Manager data below. Use one of these formats per line:<br>
-        <code style="color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:12px">Reference: CTR X%, CPA $X, ROAS Xx, Conv X, Spend $X</code><br>
-        <code style="color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:12px">Ad Set Name: Impressions X, Clicks X, CTR X%, Spend $X, Conv X, CPA $X</code>
-      </p>
-      <textarea class="perf-input" id="perfInput" placeholder="1001 | H01B01H01: CTR 3.2%, CPA $12, ROAS 4.5x, Conv 47, Spend $560&#10;1001 | H02B01H01: CTR 2.8%, CPA $15, ROAS 3.2x, Conv 32, Spend $480&#10;&#10;Or paste ad set level:&#10;Cold - Sydney 25km - 30-60All: Imp 12000, Clicks 340, CTR 2.83%, Spend $680, Conv 47, CPA $14.47"></textarea>
-      <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
-        <button class="btn btn-primary" onclick="runBulkUpdate()" id="perfBtn">Update Notion</button>
-        <span id="perfStatus" style="font-size:12px;color:var(--text-m)"></span>
-      </div>
-      <div id="perfResult"></div>
-    </div>`;
-}
-
-async function runBulkUpdate() {
-  const input = document.getElementById('perfInput').value.trim();
-  if (!input) return;
-  const btn = document.getElementById('perfBtn');
-  const status = document.getElementById('perfStatus');
-  const resultEl = document.getElementById('perfResult');
-  btn.disabled = true; btn.textContent = 'Updating...'; status.textContent = '';
-
-  const lines = input.split('\n').filter(l => l.trim());
-  const results = [];
-  const adcopy = await fetchData('adcopy');
-  const adsets = await fetchData('adsets');
-
-  for (const line of lines) {
-    const colonIdx = line.indexOf(':');
-    if (colonIdx === -1) { results.push({ line, status:'skipped', reason:'No colon separator' }); continue; }
-    const ref = line.substring(0, colonIdx).trim();
-    const dataStr = line.substring(colonIdx + 1).trim();
-
-    // Parse numbers from data string
-    const extract = (pattern) => { const m = dataStr.match(pattern); return m ? parseFloat(m[1]) : null; };
-    const ctr = extract(/CTR\s*([\d.]+)%/i);
-    const cpa = extract(/CPA?\s*\$?([\d.]+)/i);
-    const roas = extract(/ROAS\s*([\d.]+)/i);
-    const conv = extract(/Conv(?:ersions?)?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
-    const spend = extract(/Spend\s*\$?([\d,.]+)/i);
-    const imp = extract(/Imp(?:ressions?)?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
-    const clicks = extract(/Clicks?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
-    const cpm = extract(/CPM\s*\$?([\d.]+)/i);
-    const reach = extract(/Reach\s*([\d,]+)/i)?.toString().replace(/,/g,'');
-
-    // Try to match ad copy first
-    let matched = adcopy.find(a => a.name === ref || a.reference === ref);
-    if (matched) {
-      const props = {};
-      if (ctr != null) props['Results — CTR'] = { type:'number', value: ctr };
-      if (cpa != null) props['Results — CPA/CPL'] = { type:'number', value: cpa };
-      if (roas != null) props['Results — ROAS'] = { type:'number', value: roas };
-      if (conv != null) props['Results — Conversions'] = { type:'number', value: parseInt(conv) };
-      status.textContent = `Updating ${ref}...`;
-      const r = await updateNotion(matched.id, props);
-      results.push({ line: ref, status: r.success ? 'updated' : 'failed', type:'Ad Copy', fields: Object.keys(props) });
-      continue;
-    }
-
-    // Try ad sets
-    matched = adsets.find(a => a.name === ref);
-    if (matched) {
-      const props = {};
-      if (spend != null) props['Results — Spend'] = { type:'number', value: parseFloat(spend) };
-      if (imp != null) props['Results — Impressions'] = { type:'number', value: parseInt(imp) };
-      if (reach != null) props['Results — Reach'] = { type:'number', value: parseInt(reach) };
-      if (clicks != null) props['Results — Clicks'] = { type:'number', value: parseInt(clicks) };
-      if (ctr != null) props['Results — CTR'] = { type:'number', value: ctr };
-      if (conv != null) props['Results — Conversions'] = { type:'number', value: parseInt(conv) };
-      if (cpa != null) props['Results — CPL/CPA'] = { type:'number', value: cpa };
-      if (roas != null) props['Results — ROAS'] = { type:'number', value: roas };
-      if (cpm != null) props['Results — CPM'] = { type:'number', value: cpm };
-      status.textContent = `Updating ${ref}...`;
-      const r = await updateNotion(matched.id, props);
-      results.push({ line: ref, status: r.success ? 'updated' : 'failed', type:'Ad Set', fields: Object.keys(props) });
-      continue;
-    }
-
-    results.push({ line: ref, status:'not_found', reason:'No matching ad or ad set' });
-  }
-
-  btn.disabled = false; btn.textContent = 'Update Notion';
-  const updated = results.filter(r => r.status === 'updated');
-  const notFound = results.filter(r => r.status === 'not_found');
-  const failed = results.filter(r => r.status === 'failed');
-  status.textContent = `Done — ${updated.length} updated, ${notFound.length} not found, ${failed.length} failed`;
-
-  resultEl.innerHTML = `<div class="result-box"><div class="rlabel">Results</div><pre>${
-    results.map(r => {
-      const icon = r.status === 'updated' ? '✓' : r.status === 'not_found' ? '?' : '✗';
-      const color = r.status === 'updated' ? 'var(--green)' : r.status === 'not_found' ? 'var(--orange)' : 'var(--red)';
-      return `<span style="color:${color}">${icon}</span> ${esc(r.line)} — ${r.status}${r.type ? ' ('+r.type+')' : ''}${r.fields ? ' ['+r.fields.length+' fields]' : ''}${r.reason ? ' — '+r.reason : ''}`;
-    }).join('\n')
-  }</pre></div>`;
-
-  cache.adcopy = null; cache.adsets = null; cache.campaigns = null;
-}
-
-// ═══════════════════════════════════════
-// DELETE
-// ═══════════════════════════════════════
-async function confirmDelete(id, type) {
-  if (currentUser.role !== 'admin') return alert('Admin access required');
-  if (!confirm('Are you sure you want to delete this? This will archive it in Notion.')) return;
-  const result = await deleteNotion(id);
-  if (result.success) { cache[type] = null; closePanel(); renderSection(); }
-  else alert('Delete failed');
-}
-
-// ═══════════════════════════════════════
-// PANEL
-// ═══════════════════════════════════════
-function openPanel(title, html) {
-  document.getElementById('panelTitle').textContent = title;
-  document.getElementById('panelBody').innerHTML = html;
-  document.getElementById('detailOverlay').classList.add('open');
-}
-function closePanel() { document.getElementById('detailOverlay').classList.remove('open'); }
-
-// ═══════════════════════════════════════
-// ROUTER
-// ═══════════════════════════════════════
-function renderSection() {
-  const map = {
-    overview: renderOverview,
-    clients: renderClients,
-    campaigns: renderCampaigns,
-    adsets: renderAdSets,
-    adcopy: renderAdCopy,
-    performance: renderPerformance,
-  };
-  (map[activeSection] || renderOverview)();
-}
+// ── Router ──
+function render(){var m={overview:renderOverview,clients:renderClients,campaigns:renderCampaigns,adsets:renderAdSets,adcopy:renderAdCopy,performance:renderPerformance};(m[sec]||renderOverview)();}
 </script>
 </body>
 </html>
