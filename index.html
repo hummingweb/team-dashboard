@@ -136,7 +136,7 @@ var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'C
 var SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
 var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null},srch={clients:'',campaigns:'',adsets:'',adcopy:''};
-var filters={campaignClient:'',adsetClient:'',adcopyClient:''};
+var filters={campaignClient:'',adsetClient:'',adcopyClient:'',perfClient:''};
 var RD={};
 function sr(o){RD[o.id]=o;return o.id;}
 function gr(id){return RD[id];}
@@ -337,9 +337,9 @@ function renderClients(){var el=document.getElementById('mainContent');el.innerH
   var f=t?d.filter(function(c){return(c.name||'').toLowerCase().indexOf(t)>-1||(c.industry||'').toLowerCase().indexOf(t)>-1||(c.serviceType||'').toLowerCase().indexOf(t)>-1||(c.location||'').toLowerCase().indexOf(t)>-1||(c.status||'').toLowerCase().indexOf(t)>-1;}):d;
   var h='<div class="section-hdr"><div><h2>Clients</h2><div class="sub">'+d.length+' clients</div></div></div>';
   h+='<div class="search-bar"><input placeholder="Search clients..." value="'+esc(srch.clients)+'" data-search="clients"></div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th><th>Location</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="client"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c.industry)+'</td><td style="max-width:180px">'+esc(c.serviceType)+'</td><td>'+bdg(c.status)+'</td><td style="white-space:nowrap">'+dlr(c.monthlyRetainer)+'</td><td>'+esc(c.location)+'</td></tr>';}}
-  else h+='<tr><td colspan="6" class="empty">No clients</td></tr>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Email</th><th>Phone</th><th>Retainer</th><th>Location</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="client"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c.industry)+'</td><td style="max-width:180px">'+esc(c.serviceType)+'</td><td>'+bdg(c.status)+'</td><td style="font-size:12px">'+esc(c.email)+'</td><td style="white-space:nowrap;font-size:12px">'+esc(c.phone)+'</td><td style="white-space:nowrap">'+dlr(c.monthlyRetainer)+'</td><td>'+esc(c.location)+'</td></tr>';}}
+  else h+='<tr><td colspan="8" class="empty">No clients</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
 function showClient(id){var c=gr(id);if(!c)return;
@@ -642,24 +642,46 @@ function notifyClient(ad,newStatus){
 // ── Performance (read-only bulk view) ──
 function renderPerformance(){
   var el=document.getElementById('mainContent');
-  el.innerHTML='<div class="section-hdr"><div><h2>Performance</h2><div class="sub">Performance data across all ads (read-only)</div></div><button class="btn btn-sm" data-action="refresh">\u21BB Refresh</button></div>'+ldr();
-  Promise.all([fd('adcopy'),fd('adsets')]).then(function(r){
+  el.innerHTML=ldr();
+  Promise.all([fd('adcopy'),fd('adsets'),fd('clients'),fd('campaigns')]).then(function(r){
     var ac=r[0],as=r[1];
+    // Resolve client names for ad copy (via ad set)
+    for(var x=0;x<ac.length;x++){
+      var adset=null;
+      if(ac[x].adSetIds&&ac[x].adSetIds.length){
+        for(var y=0;y<as.length;y++){if(ac[x].adSetIds.indexOf(as[y].id)>-1){adset=as[y];break;}}
+      }
+      ac[x]._client=adset?resolveClient(adset.clientIds):'';
+    }
+    // Resolve client names for ad sets
+    for(var z=0;z<as.length;z++){as[z]._client=resolveClient(as[z].clientIds);}
+    // Build unique client list from both
+    var allC={};
+    for(var i=0;i<ac.length;i++){if(ac[i]._client)allC[ac[i]._client]=true;}
+    for(var j=0;j<as.length;j++){if(as[j]._client)allC[as[j]._client]=true;}
+    var clientList=Object.keys(allC).sort();
+    // Filter by client
+    var filteredAC=ac;var filteredAS=as;
+    if(filters.perfClient){
+      filteredAC=ac.filter(function(a){return a._client===filters.perfClient;});
+      filteredAS=as.filter(function(a){return a._client===filters.perfClient;});
+    }
     var h='<div class="section-hdr"><div><h2>Performance</h2><div class="sub">Performance data across all ads (read-only)</div></div><button class="btn btn-sm" data-action="refresh">\u21BB Refresh</button></div>';
+    h+='<div class="search-bar">'+clientFilter('perfClient',clientList)+'</div>';
     // Ad copy performance table
-    var withData=ac.filter(function(a){return a.ctr||a.cpa||a.roas||a.conversions;});
+    var withData=filteredAC.filter(function(a){return a.ctr||a.cpa||a.roas||a.conversions;});
     withData.sort(function(a,b){return(b.ctr||0)-(a.ctr||0);});
     h+='<h3 style="font-size:15px;font-weight:600;margin-bottom:12px">Ad Copy Performance</h3>';
-    h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Angle</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th><th>Winner</th></tr></thead><tbody>';
-    if(withData.length){for(var i=0;i<withData.length;i++){var a=withData[i];h+='<tr><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a.angle)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+dlr(a.cpa)+'</td><td>'+(a.roas?a.roas+'x':'\u2014')+'</td><td>'+nm(a.conversions)+'</td><td>'+(a.isWinner?'\u2605':'')+'</td></tr>';}}
-    else h+='<tr><td colspan="8" class="empty">No performance data yet</td></tr>';
+    h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Angle</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th><th>Winner</th></tr></thead><tbody>';
+    if(withData.length){for(var k=0;k<withData.length;k++){var a=withData[k];h+='<tr><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td>'+esc(a.angle)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+dlr(a.cpa)+'</td><td>'+(a.roas?a.roas+'x':'\u2014')+'</td><td>'+nm(a.conversions)+'</td><td>'+(a.isWinner?'\u2605':'')+'</td></tr>';}}
+    else h+='<tr><td colspan="9" class="empty">No performance data yet</td></tr>';
     h+='</tbody></table></div></div>';
     // Ad set performance
-    var asData=as.filter(function(a){return a.spend||a.impressions||a.ctr;});
+    var asData=filteredAS.filter(function(a){return a.spend||a.impressions||a.ctr;});
     if(asData.length){
       h+='<h3 style="font-size:15px;font-weight:600;margin:24px 0 12px">Ad Set Performance</h3>';
-      h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Set</th><th>Status</th><th>Spend</th><th>Imp</th><th>Clicks</th><th>CTR</th><th>Conv</th><th>CPA</th><th>ROAS</th></tr></thead><tbody>';
-      for(var j=0;j<asData.length;j++){var s=asData[j];h+='<tr><td class="cell-name" style="max-width:220px">'+esc(s.name)+'</td><td>'+bdg(s.status)+'</td><td>'+dlr(s.spend)+'</td><td>'+nm(s.impressions)+'</td><td>'+nm(s.clicks)+'</td><td>'+pct(s.ctr)+'</td><td>'+nm(s.conversions)+'</td><td>'+dlr(s.cpa)+'</td><td>'+(s.roas?s.roas+'x':'\u2014')+'</td></tr>';}
+      h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Set</th><th>Client</th><th>Status</th><th>Spend</th><th>Imp</th><th>Clicks</th><th>CTR</th><th>Conv</th><th>CPA</th><th>ROAS</th></tr></thead><tbody>';
+      for(var m=0;m<asData.length;m++){var s=asData[m];h+='<tr><td class="cell-name" style="max-width:200px">'+esc(s.name)+'</td><td>'+esc(s._client)+'</td><td>'+bdg(s.status)+'</td><td>'+dlr(s.spend)+'</td><td>'+nm(s.impressions)+'</td><td>'+nm(s.clicks)+'</td><td>'+pct(s.ctr)+'</td><td>'+nm(s.conversions)+'</td><td>'+dlr(s.cpa)+'</td><td>'+(s.roas?s.roas+'x':'\u2014')+'</td></tr>';}
       h+='</tbody></table></div></div>';
     }
     el.innerHTML=h;
