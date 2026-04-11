@@ -136,9 +136,41 @@ var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'C
 var SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
 var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null},srch={clients:'',campaigns:'',adsets:'',adcopy:''};
+var filters={campaignClient:'',adsetClient:'',adcopyClient:''};
 var RD={};
 function sr(o){RD[o.id]=o;return o.id;}
 function gr(id){return RD[id];}
+
+// Name resolution helpers — resolve relation IDs to names using cached data
+function resolveClient(ids){
+  if(!ids||!ids.length||!cache.clients)return '';
+  for(var i=0;i<cache.clients.length;i++){if(ids.indexOf(cache.clients[i].id)>-1)return cache.clients[i].name;}
+  return '';
+}
+function resolveCampaign(ids){
+  if(!ids||!ids.length||!cache.campaigns)return '';
+  for(var i=0;i<cache.campaigns.length;i++){if(ids.indexOf(cache.campaigns[i].id)>-1)return cache.campaigns[i].name;}
+  return '';
+}
+function resolveAdSet(ids){
+  if(!ids||!ids.length||!cache.adsets)return '';
+  for(var i=0;i<cache.adsets.length;i++){if(ids.indexOf(cache.adsets[i].id)>-1)return cache.adsets[i].name;}
+  return '';
+}
+function getUniqueClients(items){
+  var seen={},list=[];
+  for(var i=0;i<items.length;i++){
+    var name=resolveClient(items[i].clientIds);
+    if(name&&!seen[name]){seen[name]=true;list.push(name);}
+  }
+  list.sort();return list;
+}
+function clientFilter(filterKey,clients){
+  var h='<select data-filter="'+filterKey+'" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;min-width:160px">';
+  h+='<option value="">All Clients</option>';
+  for(var i=0;i<clients.length;i++){h+='<option'+(filters[filterKey]===clients[i]?' selected':'')+'>'+esc(clients[i])+'</option>';}
+  h+='</select>';return h;
+}
 
 // Toast
 function toast(m,ok){
@@ -269,6 +301,12 @@ document.getElementById('mainContent').addEventListener('input',function(e){
     render();
   }
 });
+document.getElementById('mainContent').addEventListener('change',function(e){
+  if(e.target.hasAttribute('data-filter')){
+    filters[e.target.getAttribute('data-filter')]=e.target.value;
+    render();
+  }
+});
 
 // ── Overview ──
 function renderOverview(){
@@ -326,12 +364,22 @@ function editClient(id){var c=gr(id);if(!c)return;var st=['Lead','Onboarding','A
 }
 
 // ── Campaigns ──
-function renderCampaigns(){var el=document.getElementById('mainContent');el.innerHTML=ldr();fd('campaigns').then(function(d){
+function renderCampaigns(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('campaigns'),fd('clients')]).then(function(r){
+  var d=r[0];
   var t=srch.campaigns?srch.campaigns.toLowerCase():'';
-  var f=t?d.filter(function(c){return(c.name||'').toLowerCase().indexOf(t)>-1||(c.objective||'').toLowerCase().indexOf(t)>-1||(c.status||'').toLowerCase().indexOf(t)>-1;}):d;
-  var h='<div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">'+d.length+' campaigns</div></div></div><div class="search-bar"><input placeholder="Search campaigns..." value="'+esc(srch.campaigns)+'" data-search="campaigns"></div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Campaign</th><th>Objective</th><th>Type</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="campaign"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c.objective)+'</td><td>'+esc(c.campaignType)+'</td><td>'+bdg(c.status)+'</td><td style="white-space:nowrap">'+dlr(c.totalBudget)+'</td><td style="white-space:nowrap">'+dlr(c.totalSpend)+'</td><td>'+nm(c.totalConversions)+'</td></tr>';}}
+  var f=d;
+  // Resolve client names
+  for(var x=0;x<f.length;x++)f[x]._client=resolveClient(f[x].clientIds);
+  // Apply client filter
+  if(filters.campaignClient)f=f.filter(function(c){return c._client===filters.campaignClient;});
+  // Apply search
+  if(t)f=f.filter(function(c){return(c.name||'').toLowerCase().indexOf(t)>-1||(c.objective||'').toLowerCase().indexOf(t)>-1||(c.status||'').toLowerCase().indexOf(t)>-1||(c._client||'').toLowerCase().indexOf(t)>-1;});
+  var clients=getUniqueClients(d);
+  var h='<div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">'+d.length+' campaigns</div></div></div>';
+  h+='<div class="search-bar"><input placeholder="Search campaigns..." value="'+esc(srch.campaigns)+'" data-search="campaigns">'+clientFilter('campaignClient',clients)+'</div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Campaign</th><th>Client</th><th>Objective</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="campaign"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c._client)+'</td><td>'+esc(c.objective)+'</td><td>'+bdg(c.status)+'</td><td style="white-space:nowrap">'+dlr(c.totalBudget)+'</td><td style="white-space:nowrap">'+dlr(c.totalSpend)+'</td><td>'+nm(c.totalConversions)+'</td></tr>';}}
   else h+='<tr><td colspan="7" class="empty">No campaigns</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
@@ -355,17 +403,28 @@ function editCampaign(id){var c=gr(id);if(!c)return;var st=['Planning','Live','P
 }
 
 // ── Ad Sets ──
-function renderAdSets(){var el=document.getElementById('mainContent');el.innerHTML=ldr();fd('adsets').then(function(d){
+function renderAdSets(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('adsets'),fd('clients'),fd('campaigns')]).then(function(r){
+  var d=r[0];
   var t=srch.adsets?srch.adsets.toLowerCase():'';
-  var f=t?d.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.funnelStage||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1;}):d;
-  var h='<div class="section-hdr"><div><h2>Ad Sets</h2><div class="sub">'+d.length+' ad sets</div></div></div><div class="search-bar"><input placeholder="Search ad sets..." value="'+esc(srch.adsets)+'" data-search="adsets"></div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Set</th><th>Funnel</th><th>Audience</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adset"><td class="cell-name" style="max-width:240px">'+esc(a.name)+'</td><td>'+esc(a.funnelStage)+'</td><td>'+esc(a.audienceType)+'</td><td>'+bdg(a.status)+'</td><td style="white-space:nowrap">'+dlr(a.dailyBudget)+'</td><td>'+pct(a.ctr)+'</td><td>'+dlr(a.cpa)+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
+  var f=d;
+  // Resolve names
+  for(var x=0;x<f.length;x++){f[x]._client=resolveClient(f[x].clientIds);f[x]._campaign=resolveCampaign(f[x].campaignIds);}
+  // Apply client filter
+  if(filters.adsetClient)f=f.filter(function(a){return a._client===filters.adsetClient;});
+  // Apply search
+  if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.funnelStage||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1||(a._campaign||'').toLowerCase().indexOf(t)>-1;});
+  var clients=getUniqueClients(d);
+  var h='<div class="section-hdr"><div><h2>Ad Sets</h2><div class="sub">'+d.length+' ad sets</div></div></div>';
+  h+='<div class="search-bar"><input placeholder="Search ad sets..." value="'+esc(srch.adsets)+'" data-search="adsets">'+clientFilter('adsetClient',clients)+'</div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Set</th><th>Client</th><th>Campaign</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adset"><td class="cell-name" style="max-width:220px">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:160px">'+esc(a._campaign)+'</td><td>'+bdg(a.status)+'</td><td style="white-space:nowrap">'+dlr(a.dailyBudget)+'</td><td>'+pct(a.ctr)+'</td><td>'+dlr(a.cpa)+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
   else h+='<tr><td colspan="8" class="empty">No ad sets</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
 function showAdSet(id){var a=gr(id);if(!a)return;
-  var h=fr('Funnel Stage',a.funnelStage)+fr('Awareness Level',a.awarenessLevel)+fb('Status',a.status)+fr('Audience Type',a.audienceType)+fr('Audience Description',a.audienceDescription)+fr('Location',a.location)+fr('Age / Gender',(a.ageRange||'\u2014')+' / '+(a.gender||'All'))+fr('Platform',a.platform)+fr('Placement',a.placement)+fr('Bid Strategy',a.bidStrategy);
+  var h=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown');
+  h+=fr('Funnel Stage',a.funnelStage)+fr('Awareness Level',a.awarenessLevel)+fb('Status',a.status)+fr('Audience Type',a.audienceType)+fr('Audience Description',a.audienceDescription)+fr('Location',a.location)+fr('Age / Gender',(a.ageRange||'\u2014')+' / '+(a.gender||'All'))+fr('Platform',a.platform)+fr('Placement',a.placement)+fr('Bid Strategy',a.bidStrategy);
   h+='<div class="metrics-grid" style="grid-template-columns:1fr 1fr">'+mc('Daily Budget',dlr(a.dailyBudget))+mc('Spend',dlr(a.spend))+mc('Impressions',nm(a.impressions))+mc('Reach',nm(a.reach))+mc('Clicks',nm(a.clicks))+mc('CTR',pct(a.ctr))+mc('CPA',dlr(a.cpa))+mc('ROAS',a.roas?a.roas+'x':'\u2014')+mc('CPM',dlr(a.cpm))+mc('Conversions',nm(a.conversions))+'</div>';
   if(user.role==='admin')h+='<div class="edit-actions"><button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button></div>';
   openPanel(a.name,h);
@@ -373,20 +432,43 @@ function showAdSet(id){var a=gr(id);if(!a)return;
 }
 
 // ── Ad Copy ──
-function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHTML=ldr();fd('adcopy').then(function(d){
+function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('adcopy'),fd('clients'),fd('campaigns'),fd('adsets')]).then(function(r){
+  var d=r[0];
   var t=srch.adcopy?srch.adcopy.toLowerCase():'';
-  var f=t?d.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.reference||'').toLowerCase().indexOf(t)>-1||(a.angle||'').toLowerCase().indexOf(t)>-1||(a.headline||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1;}):d;
+  var f=d;
+  // Resolve names — ad copy links to ad set, which links to campaign and client
+  for(var x=0;x<f.length;x++){
+    var adset=null;
+    if(f[x].adSetIds&&f[x].adSetIds.length){
+      for(var y=0;y<(cache.adsets||[]).length;y++){
+        if(f[x].adSetIds.indexOf(cache.adsets[y].id)>-1){adset=cache.adsets[y];break;}
+      }
+    }
+    f[x]._adSet=adset?adset.name:'';
+    f[x]._client=adset?resolveClient(adset.clientIds):'';
+    f[x]._campaign=adset?resolveCampaign(adset.campaignIds):'';
+  }
+  // Apply client filter
+  if(filters.adcopyClient)f=f.filter(function(a){return a._client===filters.adcopyClient;});
+  // Apply search
+  if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.reference||'').toLowerCase().indexOf(t)>-1||(a.angle||'').toLowerCase().indexOf(t)>-1||(a.headline||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1||(a._campaign||'').toLowerCase().indexOf(t)>-1;});
+  // Get unique clients for filter dropdown
+  var allClients={};
+  for(var z=0;z<d.length;z++){if(d[z]._client)allClients[d[z]._client]=true;}
+  var clientList=Object.keys(allClients).sort();
   var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
-  h+='<div class="search-bar"><input placeholder="Search by reference, angle, headline..." value="'+esc(srch.adcopy)+'" data-search="adcopy"></div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Angle</th><th>Headline</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a.angle)+'</td><td style="max-width:180px">'+esc(a.headline)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+dlr(a.cpa)+'</td><td>'+(a.roas?a.roas+'x':'\u2014')+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
+  h+='<div class="search-bar"><input placeholder="Search by reference, angle, headline..." value="'+esc(srch.adcopy)+'" data-search="adcopy">'+clientFilter('adcopyClient',clientList)+'</div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Headline</th><th>Status</th><th>CTR</th><th>Conv</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td style="max-width:160px">'+esc(a.headline)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
   else h+='<tr><td colspan="8" class="empty">No ads</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
 function showAdCopy(id){
   var a=gr(id);if(!a)return;
   var preview=esc((a.hook||'')+(a.hook&&a.primaryText?'\n\n':'')+(a.primaryText||''));
-  var h=fr('Reference',a.reference)+fr('Angle',a.angle)+fb('Status',a.status);
+  var h=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown')+fr('Ad Set',a._adSet||'Unknown');
+  h+=fr('Reference',a.reference)+fr('Angle',a.angle)+fb('Status',a.status);
   if(a.isWinner)h+='<div style="margin-bottom:14px"><span class="badge badge-green" style="font-size:12px;padding:5px 14px">\u2605 Winner</span></div>';
   h+='<div class="ad-preview"><div class="label">Ad Preview</div><div class="body">'+preview+'</div><div class="below"><div class="hl">'+esc(a.headline)+'</div><div class="desc">'+esc(a.description)+'</div>'+(a.ctaButton?'<span class="cta-tag">'+esc(a.ctaButton)+'</span>':'')+'</div></div>';
   h+=fr('Image Ref',a.imageRef)+fr('Hook Code',a.hookCode)+fr('Body Code',a.bodyCode)+fr('Headline Code',a.headlineCode)+fr('Testing Group',a.testingGroup);
@@ -435,7 +517,15 @@ function editAdCopy(id){
       'Image Ref':{type:'text',value:document.getElementById('e_img').value}
     };
     updateNotion(id,p).then(function(r){
-      if(r.success){cache.adcopy=null;closePanel();render();toast('Ad copy updated');}
+      if(r.success){
+        // Check if status changed to a notification-worthy state
+        var newStatus=document.getElementById('e_st').value;
+        var oldStatus=a.status;
+        if(newStatus!==oldStatus&&(newStatus==='Live'||newStatus==='In Review')){
+          notifyClient(a,newStatus);
+        }
+        cache.adcopy=null;closePanel();render();toast('Ad copy updated');
+      }
       else{toast('Update failed',false);btn.textContent='Save';btn.disabled=false;}
     });
   });
@@ -484,6 +574,68 @@ function newAdCopyForm(){
         if(j.id||j.success){cache.adcopy=null;closePanel();render();toast('Ad copy created');}
         else{toast('Create failed',false);btn.textContent='Create';btn.disabled=false;}
       }).catch(function(){toast('Create failed',false);btn.textContent='Create';btn.disabled=false;});
+  });
+}
+
+// ── Client Notification on Status Change ──
+function findClientForAd(ad){
+  // Trace: Ad Copy → Ad Set (via adSetIds) → Client (via clientIds)
+  var clients=cache.clients||[];
+  var adsets=cache.adsets||[];
+  if(ad.adSetIds&&ad.adSetIds.length){
+    for(var i=0;i<adsets.length;i++){
+      if(ad.adSetIds.indexOf(adsets[i].id)>-1&&adsets[i].clientIds&&adsets[i].clientIds.length){
+        for(var j=0;j<clients.length;j++){
+          if(adsets[i].clientIds.indexOf(clients[j].id)>-1)return clients[j];
+        }
+      }
+    }
+  }
+  // Fallback: try matching via campaigns
+  var campaigns=cache.campaigns||[];
+  if(ad.adSetIds&&ad.adSetIds.length){
+    for(var k=0;k<adsets.length;k++){
+      if(ad.adSetIds.indexOf(adsets[k].id)>-1&&adsets[k].campaignIds&&adsets[k].campaignIds.length){
+        for(var m=0;m<campaigns.length;m++){
+          if(adsets[k].campaignIds.indexOf(campaigns[m].id)>-1&&campaigns[m].clientIds&&campaigns[m].clientIds.length){
+            for(var n=0;n<clients.length;n++){
+              if(campaigns[m].clientIds.indexOf(clients[n].id)>-1)return clients[n];
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function notifyClient(ad,newStatus){
+  // Load all data to find the client
+  Promise.all([fd('clients'),fd('adsets'),fd('campaigns')]).then(function(){
+    var client=findClientForAd(ad);
+    if(!client||!client.email){
+      console.warn('No client email found for ad:',ad.name);
+      toast('Updated but no client email found for notification',false);
+      return;
+    }
+    var payload={
+      clientName:client.contactName||client.name,
+      clientEmail:client.email,
+      businessName:client.businessName||client.name,
+      adName:ad.name,
+      adHeadline:ad.headline||'',
+      newStatus:newStatus,
+      approvalUrl:''
+    };
+    // If status is In Review, include the approval portal link if client has a token
+    fetch(API+'/team-dashboard-notify',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();}).then(function(j){
+      if(j.success)toast('Client notified via email');
+      else console.warn('Notify failed:',j);
+    }).catch(function(e){console.error('Notify error:',e);});
   });
 }
 
