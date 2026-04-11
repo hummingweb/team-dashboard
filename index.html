@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team Dashboard — Humming Web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#070709;--surface:#111114;--surface2:#18181c;--surface-hover:#1e1e23;
+  --border:#27272e;--border-l:#35353e;--yellow:#fff200;--yellow-dim:#bdb400;
+  --text:#e4e4e8;--text-m:#8a8a96;--text-d:#55555f;
+  --green:#22c55e;--red:#ef4444;--orange:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --radius:10px;--radius-sm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow:hidden;height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh}
+.sidebar{width:224px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-brand{padding:20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:var(--yellow);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000}
+.brand-text h3{font-size:14px;font-weight:600;color:var(--text);line-height:1.2}.brand-text span{font-size:11px;color:var(--text-m)}
+.sidebar nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;margin-bottom:1px;background:transparent;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:400;color:var(--text-m);font-family:inherit;text-align:left;transition:all .12s}
+.nav-btn:hover{background:var(--surface2);color:var(--text)}
+.nav-btn.active{background:rgba(255,242,0,.08);color:var(--yellow);font-weight:600}
+.nav-btn .icon{font-size:15px;width:20px;text-align:center}
+.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000}
+.user-meta .uname{font-size:12px;font-weight:500;color:var(--text)}.user-meta .urole{font-size:10px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em}
+.btn-signout{width:100%;padding:6px 0;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-m);font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s}
+.btn-signout:hover{border-color:var(--border-l);color:var(--text)}
+
+.main{flex:1;overflow-y:auto;padding:28px 32px}
+
+/* ── Login ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-card{width:380px;background:var(--surface);border-radius:16px;padding:40px;border:1px solid var(--border)}
+.login-card .brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.login-card label{font-size:11px;color:var(--text-m);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.login-card input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;font-family:inherit;margin-bottom:16px;transition:border .15s}
+.login-card input:focus{border-color:var(--yellow)}
+.login-err{color:var(--red);font-size:13px;margin-bottom:10px}
+
+/* ── Buttons ── */
+.btn{font-family:inherit;cursor:pointer;font-size:13px;padding:8px 18px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-m);font-weight:500;transition:all .12s}
+.btn:hover{background:var(--surface2);border-color:var(--border-l);color:var(--text)}
+.btn-primary{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:600}
+.btn-primary:hover{background:var(--yellow-dim)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{font-size:12px;padding:5px 12px;border-radius:var(--radius-sm)}
+.btn-danger{color:var(--red);border-color:rgba(239,68,68,.3)}.btn-danger:hover{background:rgba(239,68,68,.08)}
+.btn-save{background:var(--green);color:#000;border-color:var(--green);font-weight:600}.btn-save:hover{background:#1db954}
+
+/* ── Section Header ── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.section-hdr h2{font-size:20px;font-weight:600;color:var(--text)}
+.section-hdr .sub{font-size:13px;color:var(--text-m);margin-top:3px}
+
+/* ── Table ── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface)}
+td{padding:12px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);max-width:220px;overflow:hidden;text-overflow:ellipsis}
+tr.clickable{cursor:pointer;transition:background .08s}tr.clickable:hover{background:var(--surface-hover)}
+.cell-name{font-weight:500}.cell-mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* ── Badge ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge .dot{width:6px;height:6px;border-radius:50%}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green)}.badge-green .dot{background:var(--green)}
+.badge-orange{background:rgba(245,158,11,.12);color:var(--orange)}.badge-orange .dot{background:var(--orange)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red)}.badge-red .dot{background:var(--red)}
+.badge-blue{background:rgba(59,130,246,.12);color:var(--blue)}.badge-blue .dot{background:var(--blue)}
+.badge-gray{background:rgba(138,138,150,.1);color:var(--text-m)}.badge-gray .dot{background:var(--text-m)}
+.badge-dim{background:rgba(85,85,95,.1);color:var(--text-d)}.badge-dim .dot{background:var(--text-d)}
+
+/* ── Metric Card ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.metric-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.metric-val{font-size:26px;font-weight:600;color:var(--text)}
+.metric-sub{font-size:11px;color:var(--text-d);margin-top:3px}
+
+/* ── Detail Panel ── */
+.overlay{position:fixed;inset:0;z-index:100;display:none;justify-content:flex-end}
+.overlay.open{display:flex}
+.overlay-bg{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.panel{position:relative;width:520px;max-width:92vw;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}
+.panel-hdr h3{font-size:16px;font-weight:600;color:var(--text)}
+.panel-close{background:none;border:none;color:var(--text-m);font-size:20px;cursor:pointer;padding:4px}
+.panel-body{padding:20px}
+.field{margin-bottom:14px}.field-label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}.field-val{font-size:13px;color:var(--text);line-height:1.5}
+
+/* ── Ad Preview ── */
+.ad-preview{margin:16px 0;padding:16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+.ad-preview .label{font-size:11px;color:var(--yellow);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ad-preview .body{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:12px}
+.ad-preview .below{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+.ad-preview .hl{font-size:14px;font-weight:600;color:var(--text)}.ad-preview .desc{font-size:12px;color:var(--text-m);margin-top:2px}
+.ad-preview .cta-tag{display:inline-block;margin-top:8px;padding:4px 12px;background:rgba(255,242,0,.1);color:var(--yellow);border-radius:4px;font-size:11px;font-weight:600}
+
+/* ── Performance / Reports ── */
+textarea.perf-input{width:100%;min-height:180px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;resize:vertical;outline:none;line-height:1.6}
+textarea.perf-input:focus{border-color:var(--yellow)}
+.result-box{margin-top:16px;padding:16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+.result-box .rlabel{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.result-box pre{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;font-family:'Outfit',sans-serif}
+.report-types{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.rt-btn{padding:8px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text-m);font-size:13px;cursor:pointer;font-family:inherit;transition:all .12s}
+.rt-btn:hover{border-color:var(--border-l)}.rt-btn.active{background:rgba(255,242,0,.08);border-color:var(--yellow);color:var(--yellow);font-weight:600}
+.filter-row{display:flex;gap:12px;margin-bottom:16px;align-items:center}
+.filter-row input{flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.filter-row input:focus{border-color:var(--yellow)}
+
+/* ── Loader ── */
+.loader-wrap{padding:60px;text-align:center}
+.spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{margin-top:12px;font-size:13px;color:var(--text-m)}
+.empty{padding:40px;text-align:center;color:var(--text-m);font-size:13px}
+
+/* ── Edit Modal ── */
+.edit-row{margin-bottom:14px}
+.edit-row label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px}
+.edit-row input,.edit-row select,.edit-row textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.edit-row input:focus,.edit-row select:focus,.edit-row textarea:focus{border-color:var(--yellow)}
+.edit-row select{cursor:pointer}
+.edit-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── Tabs filter ── */
+.tab-filters{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-f{padding:5px 14px;background:transparent;border:1px solid var(--border);border-radius:20px;color:var(--text-m);font-size:12px;cursor:pointer;font-family:inherit;transition:all .12s}
+.tab-f:hover{border-color:var(--border-l)}.tab-f.active{background:rgba(255,242,0,.08);border-color:var(--yellow);color:var(--yellow)}
+
+/* ── Search bar ── */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center}
+.search-bar input{flex:1;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.search-bar input:focus{border-color:var(--yellow)}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{width:60px}.sidebar nav .nav-label,.brand-text,.sidebar-footer .user-meta,.sidebar-footer .btn-signout{display:none}
+  .sidebar-brand{padding:14px 8px;justify-content:center}.sidebar-brand .brand-icon{width:36px;height:36px}
+  .nav-btn{justify-content:center;padding:10px}.nav-btn .icon{width:auto}
+  .sidebar-footer{padding:10px;text-align:center}.sidebar-footer .user-avatar{margin:0 auto}
+  .main{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ───────── LOGIN SCREEN ───────── -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">HW</div>
+      <div><div style="font-size:18px;font-weight:600;color:var(--text)">Team Dashboard</div><div style="font-size:12px;color:var(--text-m)">Humming Web</div></div>
+    </div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="you@hummingweb.com.au" onkeydown="if(event.key==='Enter')doLogin()">
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginErr" class="login-err" style="display:none"></div>
+    <button class="btn btn-primary" style="width:100%;padding:12px 0;font-size:14px" onclick="doLogin()" id="loginBtn">Sign In</button>
+  </div>
+</div>
+
+<!-- ───────── MAIN APP ───────── -->
+<div id="appShell" class="app" style="display:none">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">HW</div>
+      <div class="brand-text"><h3>Humming Web</h3><span>Team Dashboard</span></div>
+    </div>
+    <nav id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar"></div>
+        <div class="user-meta"><div class="uname" id="userName"></div><div class="urole" id="userRole"></div></div>
+      </div>
+      <button class="btn-signout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <main class="main" id="mainContent"></main>
+</div>
+
+<!-- ───────── DETAIL PANEL ───────── -->
+<div class="overlay" id="detailOverlay">
+  <div class="overlay-bg" onclick="closePanel()"></div>
+  <div class="panel">
+    <div class="panel-hdr"><h3 id="panelTitle"></h3><button class="panel-close" onclick="closePanel()">✕</button></div>
+    <div class="panel-body" id="panelBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const API_BASE = 'https://n8n.hummingweb.com.au/webhook';
+const ENDPOINTS = {
+  clients:   API_BASE + '/team-dashboard-clients',
+  campaigns: API_BASE + '/team-dashboard-campaigns',
+  adsets:    API_BASE + '/team-dashboard-adsets',
+  adcopy:    API_BASE + '/team-dashboard-adcopy',
+  update:    API_BASE + '/team-dashboard-update',
+  del:       API_BASE + '/team-dashboard-delete',
+};
+
+const USERS = [
+  { email:'subhash@hummingweb.com.au', password:'hw2026!', name:'Subhash', role:'admin' },
+  { email:'team@hummingweb.com.au', password:'team2026', name:'Team Member', role:'team' },
+];
+
+const SECTIONS = [
+  { id:'overview',    label:'Overview',     icon:'◈' },
+  { id:'clients',     label:'Clients',      icon:'◎' },
+  { id:'campaigns',   label:'Campaigns',    icon:'▸' },
+  { id:'adsets',      label:'Ad Sets',      icon:'◇' },
+  { id:'adcopy',      label:'Ad Copy',      icon:'✎' },
+  { id:'performance', label:'Performance',  icon:'↗' },
+];
+
+const STATUS_MAP = {
+  Active:'green',Live:'green',Approved:'green',
+  Paused:'orange','In Review':'orange',Draft:'gray',
+  Completed:'blue',Planning:'blue',Onboarding:'blue',
+  Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',
+  Lead:'dim',
+};
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentUser = null;
+let activeSection = 'overview';
+let cache = { clients:null, campaigns:null, adsets:null, adcopy:null };
+let searchTerms = { clients:'', campaigns:'', adsets:'', adcopy:'' };
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  errEl.style.display = 'none';
+  setTimeout(() => {
+    const u = USERS.find(u => u.email === email && u.password === pass);
+    if (u) { currentUser = u; showApp(); }
+    else { errEl.textContent = 'Invalid credentials'; errEl.style.display = 'block'; btn.textContent = 'Sign In'; btn.disabled = false; }
+  }, 400);
+}
+function doLogout() {
+  currentUser = null; cache = { clients:null, campaigns:null, adsets:null, adcopy:null };
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = '';
+}
+
+// ═══════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userRole').textContent = currentUser.role;
+  const av = document.getElementById('userAvatar');
+  av.textContent = currentUser.name[0];
+  av.style.background = currentUser.role === 'admin' ? 'var(--yellow)' : 'var(--blue)';
+  buildNav(); navigate('overview');
+}
+
+function buildNav() {
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = SECTIONS.map(s =>
+    `<button class="nav-btn${s.id===activeSection?' active':''}" onclick="navigate('${s.id}')"><span class="icon">${s.icon}</span><span class="nav-label">${s.label}</span></button>`
+  ).join('');
+}
+
+function navigate(section) {
+  activeSection = section; buildNav(); renderSection();
+}
+
+// ═══════════════════════════════════════
+// DATA FETCHING
+// ═══════════════════════════════════════
+async function fetchData(type) {
+  if (cache[type]) return cache[type];
+  try {
+    const res = await fetch(ENDPOINTS[type]);
+    const data = await res.json();
+    cache[type] = Array.isArray(data) ? data : [];
+    return cache[type];
+  } catch(e) { console.error('Fetch error:', type, e); return []; }
+}
+
+async function updateNotion(pageId, properties) {
+  try {
+    const res = await fetch(ENDPOINTS.update, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pageId, properties })
+    });
+    return await res.json();
+  } catch(e) { console.error('Update error:', e); return { error: e.message }; }
+}
+
+async function deleteNotion(pageId) {
+  try {
+    const res = await fetch(ENDPOINTS.del, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pageId })
+    });
+    return await res.json();
+  } catch(e) { console.error('Delete error:', e); return { error: e.message }; }
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function badge(status) {
+  if (!status) return '<span class="badge badge-dim"><span class="dot"></span>—</span>';
+  const cls = STATUS_MAP[status] || 'gray';
+  return `<span class="badge badge-${cls}"><span class="dot"></span>${status}</span>`;
+}
+function money(v) { return v != null ? '$' + Number(v).toLocaleString() : '—'; }
+function pct(v) { return v != null ? v + '%' : '—'; }
+function num(v) { return v != null ? Number(v).toLocaleString() : '—'; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function metricCard(label, val, sub) {
+  return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-val">${val}</div>${sub?'<div class="metric-sub">'+sub+'</div>':''}</div>`;
+}
+function fieldRow(label, val) { return `<div class="field"><div class="field-label">${label}</div><div class="field-val">${esc(val) || '—'}</div></div>`; }
+function fieldBadge(label, status) { return `<div class="field"><div class="field-label">${label}</div><div class="field-val">${badge(status)}</div></div>`; }
+function loader() { return '<div class="loader-wrap"><div class="spinner"></div><div class="loader-text">Loading from Notion...</div></div>'; }
+function searchBar(type, placeholder) {
+  return `<div class="search-bar"><input type="text" placeholder="${placeholder}" value="${esc(searchTerms[type])}" oninput="searchTerms['${type}']=this.value;renderSection()"></div>`;
+}
+function filterData(data, term, keys) {
+  if (!term) return data;
+  const t = term.toLowerCase();
+  return data.filter(d => keys.some(k => (d[k]||'').toString().toLowerCase().includes(t)));
+}
+
+// ═══════════════════════════════════════
+// OVERVIEW SECTION
+// ═══════════════════════════════════════
+async function renderOverview() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = '<div class="section-hdr"><div><h2>Overview</h2><div class="sub">Your Meta Ads management at a glance</div></div></div>' + loader();
+
+  const [clients, campaigns, adsets, adcopy] = await Promise.all([
+    fetchData('clients'), fetchData('campaigns'), fetchData('adsets'), fetchData('adcopy')
+  ]);
+
+  const activeClients = clients.filter(c => c.status === 'Active').length;
+  const liveCampaigns = campaigns.filter(c => c.status === 'Live').length;
+  const liveAdSets = adsets.filter(a => a.status === 'Live').length;
+  const totalAds = adcopy.length;
+  const totalSpend = campaigns.reduce((s, c) => s + (c.totalSpend || 0), 0);
+  const totalConv = campaigns.reduce((s, c) => s + (c.totalConversions || 0), 0);
+  const avgCTR = adcopy.filter(a => a.ctr).length > 0
+    ? (adcopy.filter(a => a.ctr).reduce((s, a) => s + a.ctr, 0) / adcopy.filter(a => a.ctr).length).toFixed(2)
+    : '—';
+  const topAds = adcopy.filter(a => a.ctr).sort((a, b) => (b.ctr||0) - (a.ctr||0)).slice(0, 5);
+
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Overview</h2><div class="sub">Your Meta Ads management at a glance</div></div>
+      <button class="btn btn-sm" onclick="cache={clients:null,campaigns:null,adsets:null,adcopy:null};renderSection()">↻ Refresh</button>
+    </div>
+    <div class="metrics-grid">
+      ${metricCard('Active Clients', activeClients, clients.length + ' total')}
+      ${metricCard('Live Campaigns', liveCampaigns, campaigns.length + ' total')}
+      ${metricCard('Live Ad Sets', liveAdSets, adsets.length + ' total')}
+      ${metricCard('Total Ads', totalAds, adcopy.filter(a=>a.status==='Live').length + ' live')}
+      ${metricCard('Total Spend', money(totalSpend), 'Across all campaigns')}
+      ${metricCard('Conversions', num(totalConv))}
+      ${metricCard('Avg CTR', avgCTR !== '—' ? avgCTR + '%' : '—', 'Across all ads')}
+    </div>
+    ${topAds.length ? `
+    <div style="margin-top:24px">
+      <h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px">Top Performing Ads</h3>
+      <div class="table-wrap"><div class="table-scroll"><table>
+        <thead><tr><th>Reference</th><th>Angle</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th><th>Status</th></tr></thead>
+        <tbody>${topAds.map(a => `<tr class="clickable" onclick="navigate('adcopy')">
+          <td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td>
+          <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td><td>${a.roas ? a.roas+'x':'—'}</td>
+          <td>${num(a.conversions)}</td><td>${badge(a.status)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>
+    </div>` : ''}
+    <div style="margin-top:24px">
+      <h3 style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px">Recent Clients</h3>
+      <div class="table-wrap"><div class="table-scroll"><table>
+        <thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th></tr></thead>
+        <tbody>${clients.slice(0,5).map(c => `<tr class="clickable" onclick="navigate('clients')">
+          <td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td>
+          <td>${esc(c.serviceType)}</td><td>${badge(c.status)}</td><td>${money(c.monthlyRetainer)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// CLIENTS SECTION
+// ═══════════════════════════════════════
+async function renderClients() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = '<div class="section-hdr"><div><h2>Clients</h2></div></div>' + loader();
+  const data = await fetchData('clients');
+  const filtered = filterData(data, searchTerms.clients, ['name','businessName','industry','serviceType','location','status']);
+
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Clients</h2><div class="sub">${data.length} clients in your workspace</div></div></div>
+    ${searchBar('clients','Search clients...')}
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Client</th><th>Industry</th><th>Services</th><th>Status</th><th>Retainer</th><th>Location</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick='openClientPanel(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+        <td class="cell-name">${esc(c.name)}</td><td>${esc(c.industry)}</td>
+        <td style="max-width:180px">${esc(c.serviceType)}</td><td>${badge(c.status)}</td>
+        <td style="white-space:nowrap">${money(c.monthlyRetainer)}</td><td>${esc(c.location)}</td>
+      </tr>`).join('') : '<tr><td colspan="6" class="empty">No clients found</td></tr>'}</tbody>
+    </table></div></div>`;
+}
+
+function openClientPanel(c) {
+  openPanel(c.name || 'Client', `
+    ${fieldRow('Business Name', c.businessName || c.name)}
+    ${fieldRow('Industry', c.industry)}
+    ${fieldBadge('Status', c.status)}
+    ${fieldRow('Services', c.serviceType)}
+    ${fieldRow('Contact', c.contactName)}
+    ${fieldRow('Email', c.email)}
+    ${fieldRow('Phone', c.phone)}
+    ${fieldRow('Website', c.website)}
+    ${fieldRow('Location', c.location)}
+    ${fieldRow('Monthly Retainer', c.monthlyRetainer ? money(c.monthlyRetainer) + ' AUD' : null)}
+    ${fieldRow('Start Date', c.startDate)}
+    ${fieldRow('Brand Voice', c.brandVoice)}
+    ${fieldRow('Compliance Notes', c.complianceNotes)}
+    ${currentUser.role === 'admin' ? `
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="editClient('${c.id}')">Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${c.id}','clients')">Delete</button>
+    </div>` : ''}
+  `);
+}
+
+function editClient(id) {
+  const c = (cache.clients||[]).find(x => x.id === id);
+  if (!c) return;
+  const statuses = ['Lead','Onboarding','Active','Paused','Churned'];
+  document.getElementById('panelBody').innerHTML = `
+    <div class="edit-row"><label>Business Name</label><input id="e_bname" value="${esc(c.businessName||c.name)}"></div>
+    <div class="edit-row"><label>Industry</label><input id="e_industry" value="${esc(c.industry)}"></div>
+    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="edit-row"><label>Location</label><input id="e_location" value="${esc(c.location)}"></div>
+    <div class="edit-row"><label>Monthly Retainer (AUD)</label><input type="number" id="e_retainer" value="${c.monthlyRetainer||''}"></div>
+    <div class="edit-row"><label>Brand Voice</label><textarea id="e_voice" rows="3">${esc(c.brandVoice)}</textarea></div>
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-sm btn-save" onclick="saveClient('${id}')">Save Changes</button>
+    </div>`;
+}
+
+async function saveClient(id) {
+  const props = {
+    'Business Name': { type:'text', value: document.getElementById('e_bname').value },
+    'Status': { type:'select', value: document.getElementById('e_status').value },
+    'Location': { type:'text', value: document.getElementById('e_location').value },
+    'Monthly Retainer': { type:'number', value: parseFloat(document.getElementById('e_retainer').value) || null },
+    'Brand Voice': { type:'rich_text', value: document.getElementById('e_voice').value },
+  };
+  const result = await updateNotion(id, props);
+  if (result.success) { cache.clients = null; closePanel(); renderSection(); }
+  else alert('Update failed — check console');
+}
+
+// ═══════════════════════════════════════
+// CAMPAIGNS SECTION
+// ═══════════════════════════════════════
+async function renderCampaigns() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = '<div class="section-hdr"><div><h2>Campaigns</h2></div></div>' + loader();
+  const data = await fetchData('campaigns');
+  const filtered = filterData(data, searchTerms.campaigns, ['name','objective','status','campaignType']);
+
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">${data.length} campaigns</div></div></div>
+    ${searchBar('campaigns','Search campaigns...')}
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Campaign</th><th>Objective</th><th>Type</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(c => `<tr class="clickable" onclick='openCampaignPanel(${JSON.stringify(c).replace(/'/g,"&#39;")})'>
+        <td class="cell-name">${esc(c.name)}</td><td>${esc(c.objective)}</td>
+        <td>${esc(c.campaignType)}</td><td>${badge(c.status)}</td>
+        <td style="white-space:nowrap">${money(c.totalBudget)}</td>
+        <td style="white-space:nowrap">${money(c.totalSpend)}</td>
+        <td>${num(c.totalConversions)}</td>
+      </tr>`).join('') : '<tr><td colspan="7" class="empty">No campaigns found</td></tr>'}</tbody>
+    </table></div></div>`;
+}
+
+function openCampaignPanel(c) {
+  const roas = (c.totalSpend && c.totalConversions) ? (c.totalConversions / c.totalSpend * 100).toFixed(1) + 'x' : '—';
+  openPanel(c.name || 'Campaign', `
+    ${fieldRow('Objective', c.objective)}
+    ${fieldRow('Campaign Type', c.campaignType)}
+    ${fieldBadge('Status', c.status)}
+    ${fieldRow('Special Offer', c.specialOffer)}
+    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
+      ${metricCard('Budget', money(c.totalBudget))}
+      ${metricCard('Spent', money(c.totalSpend))}
+      ${metricCard('Conversions', num(c.totalConversions))}
+      ${metricCard('ROAS', roas)}
+    </div>
+    ${fieldRow('Start Date', c.startDate)}
+    ${fieldRow('End Date', c.endDate)}
+    ${currentUser.role === 'admin' ? `
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="editCampaign('${c.id}')">Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${c.id}','campaigns')">Delete</button>
+    </div>` : ''}
+  `);
+}
+
+function editCampaign(id) {
+  const c = (cache.campaigns||[]).find(x => x.id === id);
+  if (!c) return;
+  const statuses = ['Planning','Live','Paused','Completed'];
+  document.getElementById('panelBody').innerHTML = `
+    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${c.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="edit-row"><label>Total Budget (AUD)</label><input type="number" id="e_budget" value="${c.totalBudget||''}"></div>
+    <div class="edit-row"><label>Total Spend</label><input type="number" id="e_spend" value="${c.totalSpend||''}"></div>
+    <div class="edit-row"><label>Total Conversions</label><input type="number" id="e_conv" value="${c.totalConversions||''}"></div>
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-sm btn-save" onclick="saveCampaign('${id}')">Save Changes</button>
+    </div>`;
+}
+
+async function saveCampaign(id) {
+  const props = {
+    'Status': { type:'select', value: document.getElementById('e_status').value },
+    'Total Budget': { type:'number', value: parseFloat(document.getElementById('e_budget').value) || null },
+    'Results — Total Spend': { type:'number', value: parseFloat(document.getElementById('e_spend').value) || null },
+    'Results — Total Conversions': { type:'number', value: parseFloat(document.getElementById('e_conv').value) || null },
+  };
+  const result = await updateNotion(id, props);
+  if (result.success) { cache.campaigns = null; closePanel(); renderSection(); }
+  else alert('Update failed');
+}
+
+// ═══════════════════════════════════════
+// AD SETS SECTION
+// ═══════════════════════════════════════
+async function renderAdSets() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = '<div class="section-hdr"><div><h2>Ad Sets</h2></div></div>' + loader();
+  const data = await fetchData('adsets');
+  const filtered = filterData(data, searchTerms.adsets, ['name','funnelStage','audienceType','status','location']);
+
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Ad Sets</h2><div class="sub">${data.length} ad sets across all campaigns</div></div></div>
+    ${searchBar('adsets','Search ad sets...')}
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Ad Set</th><th>Funnel</th><th>Audience</th><th>Status</th><th>Daily $</th><th>CTR</th><th>CPA</th><th>Conv</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick='openAdSetPanel(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+        <td class="cell-name" style="max-width:240px">${esc(a.name)}</td>
+        <td>${esc(a.funnelStage)}</td><td>${esc(a.audienceType)}</td>
+        <td>${badge(a.status)}</td><td style="white-space:nowrap">${money(a.dailyBudget)}</td>
+        <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td><td>${num(a.conversions)}</td>
+      </tr>`).join('') : '<tr><td colspan="8" class="empty">No ad sets found</td></tr>'}</tbody>
+    </table></div></div>`;
+}
+
+function openAdSetPanel(a) {
+  openPanel(a.name || 'Ad Set', `
+    ${fieldRow('Funnel Stage', a.funnelStage)}
+    ${fieldRow('Awareness Level', a.awarenessLevel)}
+    ${fieldBadge('Status', a.status)}
+    ${fieldRow('Audience Type', a.audienceType)}
+    ${fieldRow('Audience Description', a.audienceDescription)}
+    ${fieldRow('Location', a.location)}
+    ${fieldRow('Age Range', a.ageRange)}
+    ${fieldRow('Gender', a.gender)}
+    ${fieldRow('Platform', a.platform)}
+    ${fieldRow('Placement', a.placement)}
+    ${fieldRow('Bid Strategy', a.bidStrategy)}
+    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
+      ${metricCard('Daily Budget', money(a.dailyBudget))}
+      ${metricCard('Spend', money(a.spend))}
+      ${metricCard('Impressions', num(a.impressions))}
+      ${metricCard('Reach', num(a.reach))}
+      ${metricCard('Clicks', num(a.clicks))}
+      ${metricCard('CTR', pct(a.ctr))}
+      ${metricCard('CPA', money(a.cpa))}
+      ${metricCard('ROAS', a.roas ? a.roas + 'x' : '—')}
+      ${metricCard('CPM', money(a.cpm))}
+      ${metricCard('Conversions', num(a.conversions))}
+    </div>
+    ${currentUser.role === 'admin' ? `
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="editAdSet('${a.id}')">Edit Performance</button>
+      <button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}','adsets')">Delete</button>
+    </div>` : `
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="editAdSet('${a.id}')">Edit Performance</button>
+    </div>`}
+  `);
+}
+
+function editAdSet(id) {
+  const a = (cache.adsets||[]).find(x => x.id === id);
+  if (!a) return;
+  const statuses = ['Draft','Live','Paused','Completed','Killed'];
+  document.getElementById('panelBody').innerHTML = `
+    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="edit-row"><label>Daily Budget (AUD)</label><input type="number" id="e_budget" value="${a.dailyBudget||''}" step="0.01"></div>
+    <div class="edit-row"><label>Spend</label><input type="number" id="e_spend" value="${a.spend||''}" step="0.01"></div>
+    <div class="edit-row"><label>Impressions</label><input type="number" id="e_imp" value="${a.impressions||''}"></div>
+    <div class="edit-row"><label>Reach</label><input type="number" id="e_reach" value="${a.reach||''}"></div>
+    <div class="edit-row"><label>Clicks</label><input type="number" id="e_clicks" value="${a.clicks||''}"></div>
+    <div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ctr" value="${a.ctr||''}" step="0.01"></div>
+    <div class="edit-row"><label>Conversions</label><input type="number" id="e_conv" value="${a.conversions||''}"></div>
+    <div class="edit-row"><label>CPL/CPA (AUD)</label><input type="number" id="e_cpa" value="${a.cpa||''}" step="0.01"></div>
+    <div class="edit-row"><label>ROAS</label><input type="number" id="e_roas" value="${a.roas||''}" step="0.01"></div>
+    <div class="edit-row"><label>CPM (AUD)</label><input type="number" id="e_cpm" value="${a.cpm||''}" step="0.01"></div>
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-sm btn-save" onclick="saveAdSet('${id}')">Save Changes</button>
+    </div>`;
+}
+
+async function saveAdSet(id) {
+  const gv = (elId) => { const v = document.getElementById(elId).value; return v !== '' ? parseFloat(v) : null; };
+  const props = {
+    'Status': { type:'select', value: document.getElementById('e_status').value },
+    'Daily Budget': { type:'number', value: gv('e_budget') },
+    'Results — Spend': { type:'number', value: gv('e_spend') },
+    'Results — Impressions': { type:'number', value: gv('e_imp') },
+    'Results — Reach': { type:'number', value: gv('e_reach') },
+    'Results — Clicks': { type:'number', value: gv('e_clicks') },
+    'Results — CTR': { type:'number', value: gv('e_ctr') },
+    'Results — Conversions': { type:'number', value: gv('e_conv') },
+    'Results — CPL/CPA': { type:'number', value: gv('e_cpa') },
+    'Results — ROAS': { type:'number', value: gv('e_roas') },
+    'Results — CPM': { type:'number', value: gv('e_cpm') },
+  };
+  const result = await updateNotion(id, props);
+  if (result.success) { cache.adsets = null; closePanel(); renderSection(); }
+  else alert('Update failed');
+}
+
+// ═══════════════════════════════════════
+// AD COPY SECTION
+// ═══════════════════════════════════════
+async function renderAdCopy() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = '<div class="section-hdr"><div><h2>Ad Copy</h2></div></div>' + loader();
+  const data = await fetchData('adcopy');
+  const filtered = filterData(data, searchTerms.adcopy, ['name','reference','angle','headline','status','hook']);
+
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">${data.length} ad variations</div></div></div>
+    ${searchBar('adcopy','Search by reference, angle, headline...')}
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Reference</th><th>Angle</th><th>Headline</th><th>Status</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Conv</th></tr></thead>
+      <tbody>${filtered.length ? filtered.map(a => `<tr class="clickable" onclick='openAdCopyPanel(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+        <td class="cell-mono">${esc(a.name)}</td><td>${esc(a.angle)}</td>
+        <td style="max-width:180px">${esc(a.headline)}</td><td>${badge(a.status)}</td>
+        <td>${pct(a.ctr)}</td><td>${money(a.cpa)}</td>
+        <td>${a.roas ? a.roas+'x':'—'}</td><td>${num(a.conversions)}</td>
+      </tr>`).join('') : '<tr><td colspan="8" class="empty">No ads found</td></tr>'}</tbody>
+    </table></div></div>`;
+}
+
+function openAdCopyPanel(a) {
+  const previewBody = (a.hook||'') + (a.hook && a.primaryText ? '\n\n' : '') + (a.primaryText||'');
+  openPanel(a.name || 'Ad Copy', `
+    ${fieldRow('Reference', a.reference)}
+    ${fieldRow('Angle', a.angle)}
+    ${fieldBadge('Status', a.status)}
+    ${a.isWinner ? '<div style="margin-bottom:14px"><span class="badge badge-green" style="font-size:12px;padding:5px 14px">★ Winner</span></div>' : ''}
+    <div class="ad-preview">
+      <div class="label">Ad Preview</div>
+      <div class="body">${esc(previewBody)}</div>
+      <div class="below">
+        <div class="hl">${esc(a.headline)}</div>
+        <div class="desc">${esc(a.description)}</div>
+        ${a.ctaButton ? '<span class="cta-tag">'+esc(a.ctaButton)+'</span>' : ''}
+      </div>
+    </div>
+    ${fieldRow('Image Ref', a.imageRef)}
+    ${fieldRow('Hook Code', a.hookCode)}
+    ${fieldRow('Body Code', a.bodyCode)}
+    ${fieldRow('Headline Code', a.headlineCode)}
+    ${fieldRow('Testing Group', a.testingGroup)}
+    <div class="metrics-grid" style="grid-template-columns:1fr 1fr">
+      ${metricCard('CTR', pct(a.ctr))}
+      ${metricCard('CPA', money(a.cpa))}
+      ${metricCard('ROAS', a.roas ? a.roas + 'x' : '—')}
+      ${metricCard('Conversions', num(a.conversions))}
+    </div>
+    ${fieldRow('UTM Campaign', a.utmCampaign)}
+    ${fieldRow('UTM Content', a.utmContent)}
+    ${fieldRow('UTM Term', a.utmTerm)}
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="editAdCopy('${a.id}')">Edit Performance</button>
+      ${currentUser.role === 'admin' ? `<button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}','adcopy')">Delete</button>` : ''}
+    </div>
+  `);
+}
+
+function editAdCopy(id) {
+  const a = (cache.adcopy||[]).find(x => x.id === id);
+  if (!a) return;
+  const statuses = ['Draft','In Review','Approved','Live','Paused','Killed'];
+  document.getElementById('panelBody').innerHTML = `
+    <div class="edit-row"><label>Status</label><select id="e_status">${statuses.map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="edit-row"><label>CTR (%)</label><input type="number" id="e_ctr" value="${a.ctr||''}" step="0.01"></div>
+    <div class="edit-row"><label>CPA/CPL (AUD)</label><input type="number" id="e_cpa" value="${a.cpa||''}" step="0.01"></div>
+    <div class="edit-row"><label>ROAS</label><input type="number" id="e_roas" value="${a.roas||''}" step="0.01"></div>
+    <div class="edit-row"><label>Conversions</label><input type="number" id="e_conv" value="${a.conversions||''}"></div>
+    <div class="edit-row"><label>Is Winner</label><select id="e_winner"><option value="false"${!a.isWinner?' selected':''}>No</option><option value="true"${a.isWinner?' selected':''}>Yes</option></select></div>
+    <div class="edit-actions">
+      <button class="btn btn-sm" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-sm btn-save" onclick="saveAdCopy('${id}')">Save Changes</button>
+    </div>`;
+}
+
+async function saveAdCopy(id) {
+  const gv = (elId) => { const v = document.getElementById(elId).value; return v !== '' ? parseFloat(v) : null; };
+  const props = {
+    'Status': { type:'select', value: document.getElementById('e_status').value },
+    'Results — CTR': { type:'number', value: gv('e_ctr') },
+    'Results — CPA/CPL': { type:'number', value: gv('e_cpa') },
+    'Results — ROAS': { type:'number', value: gv('e_roas') },
+    'Results — Conversions': { type:'number', value: gv('e_conv') },
+    'Is Winner': { type:'checkbox', value: document.getElementById('e_winner').value === 'true' },
+  };
+  const result = await updateNotion(id, props);
+  if (result.success) { cache.adcopy = null; closePanel(); renderSection(); }
+  else alert('Update failed');
+}
+
+// ═══════════════════════════════════════
+// PERFORMANCE BULK UPDATE
+// ═══════════════════════════════════════
+function renderPerformance() {
+  const el = document.getElementById('mainContent');
+  el.innerHTML = `
+    <div class="section-hdr"><div><h2>Performance Update</h2><div class="sub">Bulk update performance data from Ads Manager</div></div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+      <p style="font-size:13px;color:var(--text-m);margin-bottom:16px;line-height:1.6">
+        Paste your Ads Manager data below. Use one of these formats per line:<br>
+        <code style="color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:12px">Reference: CTR X%, CPA $X, ROAS Xx, Conv X, Spend $X</code><br>
+        <code style="color:var(--yellow);font-family:'JetBrains Mono',monospace;font-size:12px">Ad Set Name: Impressions X, Clicks X, CTR X%, Spend $X, Conv X, CPA $X</code>
+      </p>
+      <textarea class="perf-input" id="perfInput" placeholder="1001 | H01B01H01: CTR 3.2%, CPA $12, ROAS 4.5x, Conv 47, Spend $560&#10;1001 | H02B01H01: CTR 2.8%, CPA $15, ROAS 3.2x, Conv 32, Spend $480&#10;&#10;Or paste ad set level:&#10;Cold - Sydney 25km - 30-60All: Imp 12000, Clicks 340, CTR 2.83%, Spend $680, Conv 47, CPA $14.47"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+        <button class="btn btn-primary" onclick="runBulkUpdate()" id="perfBtn">Update Notion</button>
+        <span id="perfStatus" style="font-size:12px;color:var(--text-m)"></span>
+      </div>
+      <div id="perfResult"></div>
+    </div>`;
+}
+
+async function runBulkUpdate() {
+  const input = document.getElementById('perfInput').value.trim();
+  if (!input) return;
+  const btn = document.getElementById('perfBtn');
+  const status = document.getElementById('perfStatus');
+  const resultEl = document.getElementById('perfResult');
+  btn.disabled = true; btn.textContent = 'Updating...'; status.textContent = '';
+
+  const lines = input.split('\n').filter(l => l.trim());
+  const results = [];
+  const adcopy = await fetchData('adcopy');
+  const adsets = await fetchData('adsets');
+
+  for (const line of lines) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx === -1) { results.push({ line, status:'skipped', reason:'No colon separator' }); continue; }
+    const ref = line.substring(0, colonIdx).trim();
+    const dataStr = line.substring(colonIdx + 1).trim();
+
+    // Parse numbers from data string
+    const extract = (pattern) => { const m = dataStr.match(pattern); return m ? parseFloat(m[1]) : null; };
+    const ctr = extract(/CTR\s*([\d.]+)%/i);
+    const cpa = extract(/CPA?\s*\$?([\d.]+)/i);
+    const roas = extract(/ROAS\s*([\d.]+)/i);
+    const conv = extract(/Conv(?:ersions?)?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
+    const spend = extract(/Spend\s*\$?([\d,.]+)/i);
+    const imp = extract(/Imp(?:ressions?)?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
+    const clicks = extract(/Clicks?\s*([\d,]+)/i)?.toString().replace(/,/g,'');
+    const cpm = extract(/CPM\s*\$?([\d.]+)/i);
+    const reach = extract(/Reach\s*([\d,]+)/i)?.toString().replace(/,/g,'');
+
+    // Try to match ad copy first
+    let matched = adcopy.find(a => a.name === ref || a.reference === ref);
+    if (matched) {
+      const props = {};
+      if (ctr != null) props['Results — CTR'] = { type:'number', value: ctr };
+      if (cpa != null) props['Results — CPA/CPL'] = { type:'number', value: cpa };
+      if (roas != null) props['Results — ROAS'] = { type:'number', value: roas };
+      if (conv != null) props['Results — Conversions'] = { type:'number', value: parseInt(conv) };
+      status.textContent = `Updating ${ref}...`;
+      const r = await updateNotion(matched.id, props);
+      results.push({ line: ref, status: r.success ? 'updated' : 'failed', type:'Ad Copy', fields: Object.keys(props) });
+      continue;
+    }
+
+    // Try ad sets
+    matched = adsets.find(a => a.name === ref);
+    if (matched) {
+      const props = {};
+      if (spend != null) props['Results — Spend'] = { type:'number', value: parseFloat(spend) };
+      if (imp != null) props['Results — Impressions'] = { type:'number', value: parseInt(imp) };
+      if (reach != null) props['Results — Reach'] = { type:'number', value: parseInt(reach) };
+      if (clicks != null) props['Results — Clicks'] = { type:'number', value: parseInt(clicks) };
+      if (ctr != null) props['Results — CTR'] = { type:'number', value: ctr };
+      if (conv != null) props['Results — Conversions'] = { type:'number', value: parseInt(conv) };
+      if (cpa != null) props['Results — CPL/CPA'] = { type:'number', value: cpa };
+      if (roas != null) props['Results — ROAS'] = { type:'number', value: roas };
+      if (cpm != null) props['Results — CPM'] = { type:'number', value: cpm };
+      status.textContent = `Updating ${ref}...`;
+      const r = await updateNotion(matched.id, props);
+      results.push({ line: ref, status: r.success ? 'updated' : 'failed', type:'Ad Set', fields: Object.keys(props) });
+      continue;
+    }
+
+    results.push({ line: ref, status:'not_found', reason:'No matching ad or ad set' });
+  }
+
+  btn.disabled = false; btn.textContent = 'Update Notion';
+  const updated = results.filter(r => r.status === 'updated');
+  const notFound = results.filter(r => r.status === 'not_found');
+  const failed = results.filter(r => r.status === 'failed');
+  status.textContent = `Done — ${updated.length} updated, ${notFound.length} not found, ${failed.length} failed`;
+
+  resultEl.innerHTML = `<div class="result-box"><div class="rlabel">Results</div><pre>${
+    results.map(r => {
+      const icon = r.status === 'updated' ? '✓' : r.status === 'not_found' ? '?' : '✗';
+      const color = r.status === 'updated' ? 'var(--green)' : r.status === 'not_found' ? 'var(--orange)' : 'var(--red)';
+      return `<span style="color:${color}">${icon}</span> ${esc(r.line)} — ${r.status}${r.type ? ' ('+r.type+')' : ''}${r.fields ? ' ['+r.fields.length+' fields]' : ''}${r.reason ? ' — '+r.reason : ''}`;
+    }).join('\n')
+  }</pre></div>`;
+
+  cache.adcopy = null; cache.adsets = null; cache.campaigns = null;
+}
+
+// ═══════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════
+async function confirmDelete(id, type) {
+  if (currentUser.role !== 'admin') return alert('Admin access required');
+  if (!confirm('Are you sure you want to delete this? This will archive it in Notion.')) return;
+  const result = await deleteNotion(id);
+  if (result.success) { cache[type] = null; closePanel(); renderSection(); }
+  else alert('Delete failed');
+}
+
+// ═══════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════
+function openPanel(title, html) {
+  document.getElementById('panelTitle').textContent = title;
+  document.getElementById('panelBody').innerHTML = html;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closePanel() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════
+function renderSection() {
+  const map = {
+    overview: renderOverview,
+    clients: renderClients,
+    campaigns: renderCampaigns,
+    adsets: renderAdSets,
+    adcopy: renderAdCopy,
+    performance: renderPerformance,
+  };
+  (map[activeSection] || renderOverview)();
+}
+</script>
+</body>
+</html>
