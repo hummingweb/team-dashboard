@@ -138,7 +138,7 @@ var API='https://n8n.hummingweb.com.au/webhook';
 var EP={clients:API+'/team-dashboard-clients',campaigns:API+'/team-dashboard-campaigns',adsets:API+'/team-dashboard-adsets',adcopy:API+'/team-dashboard-adcopy',gadgroups:API+'/team-dashboard-gadgroups',gadcopy:API+'/team-dashboard-gadcopy',gkeywords:API+'/team-dashboard-gkeywords',update:API+'/team-dashboard-update',del:API+'/team-dashboard-delete'};
 var USERS=[{email:'subhash@hummingweb.com.au',password:'hw2026!',name:'Subhash',role:'admin'},{email:'team@hummingweb.com.au',password:'team2026',name:'Team Member',role:'team'}];
 var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'Clients',icon:'\u25CE'},{id:'campaigns',label:'Campaigns',icon:'\u25B8'},{id:'adsets',label:'Ad Sets',icon:'\u25C7'},{id:'adcopy',label:'Ad Copy',icon:'\u270E'},{id:'performance',label:'Performance',icon:'\u2197'},{id:'gadgroups',label:'G. Ad Groups',icon:'\u25A3'},{id:'gadcopy',label:'G. Ad Copy',icon:'\u270D'},{id:'gkeywords',label:'G. Keywords',icon:'\u2263'}];
-var SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
+var SM={Active:'green',Live:'blue',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
 var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null},srch={clients:'',campaigns:'',adsets:'',adcopy:'',gadgroups:'',gadcopy:'',gkeywords:''};
 var filters={campaignClient:'',campaignPlatform:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',perfClient:'',gagClient:'',gagCampaign:'',gacClient:'',gacAdGroup:'',gkwClient:'',gkwAdGroup:''};
@@ -520,8 +520,10 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
 
 function showAdCopy(id){
   var a=gr(id);if(!a)return;
-  // Status badge inline with title in panel header
-  document.getElementById('panelTitle').innerHTML=esc(a.name||'Ad Copy')+'  '+bdg(a.status)+(a.isWinner?' <span class="badge badge-green" style="font-size:11px;padding:3px 10px">\u2605 Winner</span>':'');
+  // Title — just the ad name, no status badge
+  document.getElementById('panelTitle').innerHTML=esc(a.name||'Ad Copy')+(a.isWinner?' <span class="badge badge-green" style="font-size:11px;padding:3px 10px">\u2605 Winner</span>':'');
+  // Status badge before Primary Text
+  var h='<div style="margin-bottom:14px">'+bdg(a.status)+'</div>';
   // Primary Text — click to copy (main focus)
   var primaryRaw=a.primaryText||'';
   var h='<div class="field"><div class="field-label">Primary Text <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
