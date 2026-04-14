@@ -79,6 +79,11 @@ tr.clickable{cursor:pointer;transition:background .08s}tr.clickable:hover{backgr
 .ad-preview .below{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
 .ad-preview .hl{font-size:14px;font-weight:600}.ad-preview .desc{font-size:12px;color:var(--text-m);margin-top:2px}
 .ad-preview .cta-tag{display:inline-block;margin-top:8px;padding:4px 12px;background:rgba(26,26,26,.06);border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:600}
+.copy-box{position:relative;margin:12px 0;padding:14px 44px 14px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;line-height:1.6;white-space:pre-wrap;cursor:pointer;transition:border-color .15s}
+.copy-box:hover{border-color:var(--accent)}
+.copy-icon{position:absolute;top:10px;right:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text-m);pointer-events:none}
+.copy-box.copied{border-color:var(--green)}
+.copy-box.copied .copy-icon{background:var(--green);color:#fff;border-color:var(--green)}
 textarea.perf-input{width:100%;min-height:180px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;resize:vertical;outline:none;line-height:1.6}
 textarea.perf-input:focus{border-color:var(--accent)}
 .result-box{margin-top:16px;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
@@ -512,17 +517,65 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
 
 function showAdCopy(id){
   var a=gr(id);if(!a)return;
-  var preview=esc((a.hook||'')+(a.hook&&a.primaryText?'\n\n':'')+(a.primaryText||''));
   var h=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown')+fr('Ad Set',a._adSet||'Unknown');
   h+=fr('Reference',a.reference)+fr('Angle',a.angle)+fb('Status',a.status);
   if(a.isWinner)h+='<div style="margin-bottom:14px"><span class="badge badge-green" style="font-size:12px;padding:5px 14px">\u2605 Winner</span></div>';
-  h+='<div class="ad-preview"><div class="label">Ad Preview</div><div class="body">'+preview+'</div><div class="below"><div class="hl">'+esc(a.headline)+'</div><div class="desc">'+esc(a.description)+'</div>'+(a.ctaButton?'<span class="cta-tag">'+esc(a.ctaButton)+'</span>':'')+'</div></div>';
-  h+=fr('Image Ref',a.imageRef)+fr('Hook Code',a.hookCode)+fr('Body Code',a.bodyCode)+fr('Headline Code',a.headlineCode)+fr('Testing Group',a.testingGroup);
-  // Performance (read-only)
-  h+='<div class="metrics-grid" style="grid-template-columns:1fr 1fr">'+mc('CTR',pct(a.ctr))+mc('CPA',dlr(a.cpa))+mc('ROAS',a.roas?a.roas+'x':'\u2014')+mc('Conversions',nm(a.conversions))+'</div>';
-  h+=fr('UTM Campaign',a.utmCampaign)+fr('UTM Content',a.utmContent)+fr('UTM Term',a.utmTerm);
+  // Primary Text — click to copy
+  var primaryRaw=a.primaryText||'';
+  h+='<div class="field"><div class="field-label">Primary Text <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
+  h+='<div class="copy-box" id="copyPrimary" data-copy="'+esc(primaryRaw).replace(/"/g,'&quot;')+'"><span class="copy-icon">\u2398</span>'+esc(primaryRaw)+'</div></div>';
+  // Headline — click to copy
+  if(a.headline){
+    h+='<div class="field"><div class="field-label">Headline <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
+    h+='<div class="copy-box" id="copyHeadline" data-copy="'+esc(a.headline).replace(/"/g,'&quot;')+'"><span class="copy-icon">\u2398</span>'+esc(a.headline)+'</div></div>';
+  }
+  // Description — click to copy
+  if(a.description){
+    h+='<div class="field"><div class="field-label">Description <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
+    h+='<div class="copy-box" id="copyDesc" data-copy="'+esc(a.description).replace(/"/g,'&quot;')+'"><span class="copy-icon">\u2398</span>'+esc(a.description)+'</div></div>';
+  }
+  if(a.ctaButton)h+=fr('CTA Button',a.ctaButton);
+  h+=fr('Image Ref',a.imageRef)+fr('Testing Group',a.testingGroup);
+  // Publish Live button (full width) — main action after approval
+  if(a.status==='Approved'){
+    h+='<button class="btn btn-primary" id="publishLiveBtn" style="width:100%;padding:12px 0;font-size:14px;margin-top:16px">\u25B6 Publish Live</button>';
+  }
   h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
   openPanel(a.name||'Ad Copy',h);
+  // Bind copy clicks
+  var copyBoxes=document.querySelectorAll('.copy-box[data-copy]');
+  for(var ci=0;ci<copyBoxes.length;ci++){
+    copyBoxes[ci].addEventListener('click',function(){
+      var txt=this.getAttribute('data-copy');
+      var box=this;
+      navigator.clipboard.writeText(txt).then(function(){
+        box.classList.add('copied');
+        box.querySelector('.copy-icon').textContent='\u2713';
+        window.setTimeout(function(){box.classList.remove('copied');box.querySelector('.copy-icon').textContent='\u2398';},1500);
+        toast('Copied to clipboard');
+      }).catch(function(){
+        // Fallback
+        var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+        box.classList.add('copied');box.querySelector('.copy-icon').textContent='\u2713';
+        window.setTimeout(function(){box.classList.remove('copied');box.querySelector('.copy-icon').textContent='\u2398';},1500);
+        toast('Copied to clipboard');
+      });
+    });
+  }
+  // Bind Publish Live
+  var pubBtn=document.getElementById('publishLiveBtn');
+  if(pubBtn){
+    pubBtn.addEventListener('click',function(){
+      pubBtn.textContent='Publishing...';pubBtn.disabled=true;
+      var p={'Status':{type:'select',value:'Live'}};
+      updateNotion(id,p).then(function(r){
+        if(r.success){
+          notifyClient(a,'Live');
+          cache.adcopy=null;closePanel();render();toast('Ad published live!');
+        } else{toast('Update failed',false);pubBtn.textContent='\u25B6 Publish Live';pubBtn.disabled=false;}
+      });
+    });
+  }
   document.getElementById('pEditBtn').addEventListener('click',function(){editAdCopy(id);});
   var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'adcopy');});
 }
