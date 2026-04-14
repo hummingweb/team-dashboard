@@ -141,7 +141,7 @@ var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'C
 var SM={Active:'green',Live:'blue',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
 var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null},srch={clients:'',campaigns:'',adsets:'',adcopy:'',gadgroups:'',gadcopy:'',gkeywords:''};
-var filters={campaignClient:'',campaignPlatform:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',perfClient:'',gagClient:'',gagCampaign:'',gacClient:'',gacAdGroup:'',gkwClient:'',gkwAdGroup:''};
+var filters={campaignClient:'',campaignPlatform:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',adcopyStatus:'',perfClient:'',gagClient:'',gagCampaign:'',gacClient:'',gacAdGroup:'',gkwClient:'',gkwAdGroup:''};
 var RD={};
 function sr(o){RD[o.id]=o;return o.id;}
 function gr(id){return RD[id];}
@@ -485,6 +485,7 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
   if(filters.adcopyClient)f=f.filter(function(a){return a._client===filters.adcopyClient;});
   if(filters.adcopyCampaign)f=f.filter(function(a){return a._campaign===filters.adcopyCampaign;});
   if(filters.adcopyAdset)f=f.filter(function(a){return a._adSet===filters.adcopyAdset;});
+  if(filters.adcopyStatus)f=f.filter(function(a){return a.status===filters.adcopyStatus;});
   // Apply search
   if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.reference||'').toLowerCase().indexOf(t)>-1||(a.angle||'').toLowerCase().indexOf(t)>-1||(a.headline||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1||(a._campaign||'').toLowerCase().indexOf(t)>-1;});
   // Build unique lists for filter dropdowns
@@ -511,11 +512,14 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
     for(var i=0;i<opts.length;i++){h+='<option'+(filters[key]===opts[i]?' selected':'')+'>'+esc(opts[i])+'</option>';}
     h+='</select>';return h;
   }
+  // Build status list
+  var allStatuses={};for(var si=0;si<d.length;si++){if(d[si].status)allStatuses[d[si].status]=true;}
+  var statusList=Object.keys(allStatuses).sort();
   var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations'+(f.length!==d.length?' \u2014 showing '+f.length:'')+'</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
-  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search by reference, angle, headline..." value="'+esc(srch.adcopy)+'" data-search="adcopy" style="min-width:200px">'+makeFilter('adcopyClient','All Clients',clientList)+makeFilter('adcopyCampaign','All Campaigns',campaignList)+makeFilter('adcopyAdset','All Ad Sets',adsetList)+'</div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Headline</th><th>Status</th><th>CTR</th><th>Conv</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td style="max-width:160px">'+esc(a.headline)+'</td><td>'+bdg(a.status)+'</td><td>'+pct(a.ctr)+'</td><td>'+nm(a.conversions)+'</td></tr>';}}
-  else h+='<tr><td colspan="8" class="empty">No ads</td></tr>';
+  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search by reference, angle..." value="'+esc(srch.adcopy)+'" data-search="adcopy" style="min-width:200px">'+makeFilter('adcopyClient','All Clients',clientList)+makeFilter('adcopyCampaign','All Campaigns',campaignList)+makeFilter('adcopyAdset','All Ad Sets',adsetList)+makeFilter('adcopyStatus','All Statuses',statusList)+'</div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Angle</th><th>Status</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td>'+esc(a.angle)+'</td><td>'+bdg(a.status)+'</td></tr>';}}
+  else h+='<tr><td colspan="6" class="empty">No ads</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
 function showAdCopy(id){
