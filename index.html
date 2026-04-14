@@ -549,7 +549,8 @@ function showAdCopy(id){
   h+=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown')+fr('Ad Set',a._adSet||'Unknown');
   h+=fr('Image Ref',a.imageRef)+fr('Testing Group',a.testingGroup);
   h+='</div>';
-  h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
+  // Edit/Delete hidden for now — reactivate later if needed
+  // h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
   document.getElementById('panelBody').innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
   // Bind copy clicks
@@ -586,8 +587,9 @@ function showAdCopy(id){
       });
     });
   }
-  document.getElementById('pEditBtn').addEventListener('click',function(){editAdCopy(id);});
-  var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'adcopy');});
+  // Edit/Delete bindings hidden — reactivate later
+  // document.getElementById('pEditBtn').addEventListener('click',function(){editAdCopy(id);});
+  // var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'adcopy');});
 }
 
 function editAdCopy(id){
