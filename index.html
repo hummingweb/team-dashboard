@@ -520,8 +520,8 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
   var statusList=Object.keys(allStatuses).sort();
   var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations'+(f.length!==d.length?' \u2014 showing '+f.length:'')+'</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
   h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search by reference, angle..." value="'+esc(srch.adcopy)+'" data-search="adcopy" style="min-width:200px">'+makeFilter('adcopyClient','All Clients',clientList)+makeFilter('adcopyCampaign','All Campaigns',campaignList)+makeFilter('adcopyAdset','All Ad Sets',adsetList)+makeFilter('adcopyStatus','All Statuses',statusList)+'</div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Angle</th><th>Status</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td>'+esc(a.angle)+'</td><td>'+bdg(a.status)+'</td></tr>';}}
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Hook</th><th>Status</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td style="max-width:200px">'+esc(a.hook)+'</td><td>'+bdg(a.status)+'</td></tr>';}}
   else h+='<tr><td colspan="6" class="empty">No ads</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
