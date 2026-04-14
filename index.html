@@ -209,16 +209,19 @@ function doLogin(){
   window.setTimeout(function(){
     var u=null;
     for(var i=0;i<USERS.length;i++){if(USERS[i].email===e&&USERS[i].password===p){u=USERS[i];break;}}
-    if(u){user=u;showApp();}
+    if(u){user=u;try{sessionStorage.setItem('hw_user',JSON.stringify(u));}catch(x){}showApp();}
     else{err.textContent='Invalid credentials';err.style.display='block';btn.textContent='Sign In';btn.disabled=false;}
   },400);
 }
 function doLogout(){
   user=null;cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null};
+  try{sessionStorage.removeItem('hw_user');}catch(x){}
   document.getElementById('appShell').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('loginEmail').value='';document.getElementById('loginPass').value='';
 }
+// Auto-restore session on page load
+(function(){try{var s=sessionStorage.getItem('hw_user');if(s){user=JSON.parse(s);showApp();}}catch(x){}})();
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appShell').style.display='flex';
