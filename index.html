@@ -527,13 +527,12 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
 
 function showAdCopy(id){
   var a=gr(id);if(!a)return;
-  // Title — just the ad name, no status badge
   document.getElementById('panelTitle').innerHTML=esc(a.name||'Ad Copy')+(a.isWinner?' <span class="badge badge-green" style="font-size:11px;padding:3px 10px">\u2605 Winner</span>':'');
-  // Status badge before Primary Text
+  // Status badge at top
   var h='<div style="margin-bottom:14px">'+bdg(a.status)+'</div>';
-  // Primary Text — click to copy (main focus)
+  // Primary Text — click to copy
   var primaryRaw=a.primaryText||'';
-  var h='<div class="field"><div class="field-label">Primary Text <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
+  h+='<div class="field"><div class="field-label">Primary Text <span style="font-size:10px;color:var(--text-d);text-transform:none;letter-spacing:0">(click to copy)</span></div>';
   h+='<div class="copy-box" id="copyPrimary" data-copy="'+esc(primaryRaw).replace(/"/g,'&quot;')+'"><span class="copy-icon">\u2398</span>'+esc(primaryRaw)+'</div></div>';
   // Headline — click to copy
   if(a.headline){
@@ -546,15 +545,19 @@ function showAdCopy(id){
     h+='<div class="copy-box" id="copyDesc" data-copy="'+esc(a.description).replace(/"/g,'&quot;')+'"><span class="copy-icon">\u2398</span>'+esc(a.description)+'</div></div>';
   }
   if(a.ctaButton)h+=fr('CTA Button',a.ctaButton);
-  // Publish Live button (full width) — main action after approval
+  // Publish Live button — only for Approved
   if(a.status==='Approved'){
     h+='<button class="btn btn-primary" id="publishLiveBtn" style="width:100%;padding:12px 0;font-size:14px;margin-top:16px">\u25B6 Publish Live</button>';
   }
-  // Details section at bottom
+  // Details section — ordered: Campaign > Ad Set > Image Ref > Reference > Angle > Testing Group
   h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">';
-  h+=fr('Reference',a.reference)+fr('Angle',a.angle);
-  h+=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown')+fr('Ad Set',a._adSet||'Unknown');
-  h+=fr('Image Ref',a.imageRef)+fr('Testing Group',a.testingGroup);
+  h+=fr('Client',a._client||'Unknown');
+  h+=fr('Campaign',a._campaign||'Unknown');
+  h+=fr('Ad Set',a._adSet||'Unknown');
+  h+=fr('Image Ref',a.imageRef);
+  h+=fr('Reference',a.reference);
+  h+=fr('Angle',a.angle);
+  h+=fr('Testing Group',a.testingGroup);
   h+='</div>';
   // Edit/Delete hidden for now — reactivate later if needed
   // h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
