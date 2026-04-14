@@ -130,13 +130,13 @@ textarea.perf-input:focus{border-color:var(--accent)}
 // This avoids ALL CSP issues with Cloudflare Workers
 
 var API='https://n8n.hummingweb.com.au/webhook';
-var EP={clients:API+'/team-dashboard-clients',campaigns:API+'/team-dashboard-campaigns',adsets:API+'/team-dashboard-adsets',adcopy:API+'/team-dashboard-adcopy',update:API+'/team-dashboard-update',del:API+'/team-dashboard-delete'};
+var EP={clients:API+'/team-dashboard-clients',campaigns:API+'/team-dashboard-campaigns',adsets:API+'/team-dashboard-adsets',adcopy:API+'/team-dashboard-adcopy',gadgroups:API+'/team-dashboard-gadgroups',gadcopy:API+'/team-dashboard-gadcopy',gkeywords:API+'/team-dashboard-gkeywords',update:API+'/team-dashboard-update',del:API+'/team-dashboard-delete'};
 var USERS=[{email:'subhash@hummingweb.com.au',password:'hw2026!',name:'Subhash',role:'admin'},{email:'team@hummingweb.com.au',password:'team2026',name:'Team Member',role:'team'}];
-var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'Clients',icon:'\u25CE'},{id:'campaigns',label:'Campaigns',icon:'\u25B8'},{id:'adsets',label:'Ad Sets',icon:'\u25C7'},{id:'adcopy',label:'Ad Copy',icon:'\u270E'},{id:'performance',label:'Performance',icon:'\u2197'}];
+var SECTS=[{id:'overview',label:'Overview',icon:'\u25C8'},{id:'clients',label:'Clients',icon:'\u25CE'},{id:'campaigns',label:'Campaigns',icon:'\u25B8'},{id:'adsets',label:'Ad Sets',icon:'\u25C7'},{id:'adcopy',label:'Ad Copy',icon:'\u270E'},{id:'performance',label:'Performance',icon:'\u2197'},{id:'gadgroups',label:'G. Ad Groups',icon:'\u25A3'},{id:'gadcopy',label:'G. Ad Copy',icon:'\u270D'},{id:'gkeywords',label:'G. Keywords',icon:'\u2263'}];
 var SM={Active:'green',Live:'green',Approved:'green',Paused:'orange','In Review':'orange',Draft:'gray',Completed:'blue',Planning:'blue',Onboarding:'blue',Churned:'red',Killed:'red',Rejected:'red','Changes Needed':'orange',Lead:'dim'};
 
-var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null},srch={clients:'',campaigns:'',adsets:'',adcopy:''};
-var filters={campaignClient:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',perfClient:''};
+var user=null,sec='overview',cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null},srch={clients:'',campaigns:'',adsets:'',adcopy:'',gadgroups:'',gadcopy:'',gkeywords:''};
+var filters={campaignClient:'',campaignPlatform:'',adsetClient:'',adcopyClient:'',adcopyCampaign:'',adcopyAdset:'',perfClient:'',gagClient:'',gagCampaign:'',gacClient:'',gacAdGroup:'',gkwClient:'',gkwAdGroup:''};
 var RD={};
 function sr(o){RD[o.id]=o;return o.id;}
 function gr(id){return RD[id];}
@@ -155,6 +155,11 @@ function resolveCampaign(ids){
 function resolveAdSet(ids){
   if(!ids||!ids.length||!cache.adsets)return '';
   for(var i=0;i<cache.adsets.length;i++){if(ids.indexOf(cache.adsets[i].id)>-1)return cache.adsets[i].name;}
+  return '';
+}
+function resolveGAdGroup(ids){
+  if(!ids||!ids.length||!cache.gadgroups)return '';
+  for(var i=0;i<cache.gadgroups.length;i++){if(ids.indexOf(cache.gadgroups[i].id)>-1)return cache.gadgroups[i].name;}
   return '';
 }
 function getUniqueClients(items){
@@ -204,7 +209,7 @@ function doLogin(){
   },400);
 }
 function doLogout(){
-  user=null;cache={clients:null,campaigns:null,adsets:null,adcopy:null};
+  user=null;cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null};
   document.getElementById('appShell').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('loginEmail').value='';document.getElementById('loginPass').value='';
@@ -285,13 +290,16 @@ document.getElementById('mainContent').addEventListener('click',function(e){
     else if(type==='campaign')showCampaign(id);
     else if(type==='adset')showAdSet(id);
     else if(type==='adcopy')showAdCopy(id);
+    else if(type==='gadgroup')showGAdGroup(id);
+    else if(type==='gadcopy')showGAdCopy(id);
+    else if(type==='gkeyword')showGKeyword(id);
   }
   // Button delegates
   var btn=e.target.closest('button[data-action]');
   if(btn){
     var action=btn.getAttribute('data-action');
     var aid=btn.getAttribute('data-id');
-    if(action==='refresh'){cache={clients:null,campaigns:null,adsets:null,adcopy:null};render();}
+    if(action==='refresh'){cache={clients:null,campaigns:null,adsets:null,adcopy:null,gadgroups:null,gadcopy:null,gkeywords:null};render();}
     else if(action==='new-adcopy')newAdCopyForm();
   }
 });
@@ -394,9 +402,9 @@ function renderCampaigns(){var el=document.getElementById('mainContent');el.inne
   var clients=getUniqueClients(d);
   var h='<div class="section-hdr"><div><h2>Campaigns</h2><div class="sub">'+d.length+' campaigns</div></div></div>';
   h+='<div class="search-bar"><input placeholder="Search campaigns..." value="'+esc(srch.campaigns)+'" data-search="campaigns">'+clientFilter('campaignClient',clients)+'</div>';
-  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Campaign</th><th>Client</th><th>Objective</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead><tbody>';
-  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="campaign"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c._client)+'</td><td>'+esc(c.objective)+'</td><td>'+bdg(c.status)+'</td><td style="white-space:nowrap">'+dlr(c.totalBudget)+'</td><td style="white-space:nowrap">'+dlr(c.totalSpend)+'</td><td>'+nm(c.totalConversions)+'</td></tr>';}}
-  else h+='<tr><td colspan="7" class="empty">No campaigns</td></tr>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Campaign</th><th>Client</th><th>Platform</th><th>Objective</th><th>Status</th><th>Budget</th><th>Spent</th><th>Conv</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var c=f[i];sr(c);h+='<tr class="clickable" data-id="'+c.id+'" data-type="campaign"><td class="cell-name">'+esc(c.name)+'</td><td>'+esc(c._client)+'</td><td>'+bdg(c.platform||'')+'</td><td>'+esc(c.objective)+'</td><td>'+bdg(c.status)+'</td><td style="white-space:nowrap">'+dlr(c.totalBudget)+'</td><td style="white-space:nowrap">'+dlr(c.totalSpend)+'</td><td>'+nm(c.totalConversions)+'</td></tr>';}}
+  else h+='<tr><td colspan="8" class="empty">No campaigns</td></tr>';
   h+='</tbody></table></div></div>';el.innerHTML=h;});}
 
 function showCampaign(id){var c=gr(id);if(!c)return;
@@ -806,6 +814,157 @@ function exportPerformancePDF(campaigns,adsets,adcopy){
   win.setTimeout(function(){win.print();},500);
 }
 
+// ── Google Ad Groups ──
+function renderGAdGroups(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('gadgroups'),fd('clients'),fd('campaigns')]).then(function(r){
+  var d=r[0];var t=srch.gadgroups?srch.gadgroups.toLowerCase():'';var f=d;
+  for(var x=0;x<f.length;x++){f[x]._client=resolveClient(f[x].clientIds);f[x]._campaign=resolveCampaign(f[x].campaignIds);}
+  if(filters.gagClient)f=f.filter(function(a){return a._client===filters.gagClient;});
+  if(filters.gagCampaign)f=f.filter(function(a){return a._campaign===filters.gagCampaign;});
+  if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.adGroupType||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1;});
+  var clients=getUniqueClients(d);
+  var campNames={};for(var c=0;c<d.length;c++){if(d[c]._campaign)campNames[d[c]._campaign]=true;}
+  var campList=Object.keys(campNames).sort();
+  var h='<div class="section-hdr"><div><h2>Google Ad Groups</h2><div class="sub">'+d.length+' ad groups</div></div></div>';
+  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search ad groups..." value="'+esc(srch.gadgroups)+'" data-search="gadgroups">'+clientFilter('gagClient',clients);
+  h+='<select data-filter="gagCampaign" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;min-width:140px"><option value="">All Campaigns</option>';
+  for(var ci=0;ci<campList.length;ci++){h+='<option'+(filters.gagCampaign===campList[ci]?' selected':'')+'>'+esc(campList[ci])+'</option>';}
+  h+='</select></div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Group</th><th>Client</th><th>Campaign</th><th>Type</th><th>Status</th><th>Default Bid</th><th>Final URL</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="gadgroup"><td class="cell-name">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:160px">'+esc(a._campaign)+'</td><td>'+bdg(a.adGroupType||'')+'</td><td>'+bdg(a.status)+'</td><td>'+dlr(a.defaultBid)+'</td><td style="max-width:180px;font-size:12px">'+esc(a.finalURL||'')+'</td></tr>';}}
+  else h+='<tr><td colspan="7" class="empty">No Google ad groups</td></tr>';
+  h+='</tbody></table></div></div>';el.innerHTML=h;});}
+
+function showGAdGroup(id){var a=gr(id);if(!a)return;
+  var h=fr('Client',a._client||'Unknown')+fr('Campaign',a._campaign||'Unknown')+fr('Ad Group Type',a.adGroupType)+fb('Status',a.status)+fr('Default Bid',a.defaultBid?dlr(a.defaultBid):null)+fr('Final URL',a.finalURL)+fr('Display Path 1',a.displayPath1)+fr('Display Path 2',a.displayPath2)+fr('Audience Signals',a.audienceSignals)+fr('Start Date',a.startDate)+fr('Notes',a.notes);
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
+  openPanel(a.name,h);
+  document.getElementById('pEditBtn').addEventListener('click',function(){editGAdGroup(id);});
+  var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'gadgroups');});
+}
+function editGAdGroup(id){var a=gr(id);if(!a)return;var st=['Draft','In Review','Approved','Active','Paused','Removed'];var types=['Search RSA','PMax Asset Group','Display'];var pb=document.getElementById('panelBody');
+  var h='<div class="edit-row"><label>Status</label><select id="e_st">';for(var i=0;i<st.length;i++)h+='<option'+(a.status===st[i]?' selected':'')+'>'+st[i]+'</option>';h+='</select></div>';
+  h+='<div class="edit-row"><label>Ad Group Type</label><select id="e_type">';for(var j=0;j<types.length;j++)h+='<option'+(a.adGroupType===types[j]?' selected':'')+'>'+types[j]+'</option>';h+='</select></div>';
+  h+='<div class="edit-row"><label>Default Bid ($)</label><input type="number" step="0.01" id="e_bid" value="'+(a.defaultBid||'')+'"></div>';
+  h+='<div class="edit-row"><label>Final URL</label><input id="e_url" value="'+esc(a.finalURL||'')+'"></div>';
+  h+='<div class="edit-row"><label>Display Path 1</label><input id="e_dp1" value="'+esc(a.displayPath1||'')+'"></div>';
+  h+='<div class="edit-row"><label>Display Path 2</label><input id="e_dp2" value="'+esc(a.displayPath2||'')+'"></div>';
+  h+='<div class="edit-row"><label>Audience Signals</label><textarea id="e_aud" rows="2">'+esc(a.audienceSignals||'')+'</textarea></div>';
+  h+='<div class="edit-row"><label>Notes</label><textarea id="e_notes" rows="2">'+esc(a.notes||'')+'</textarea></div>';
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="eCancelBtn">Cancel</button><button class="btn btn-sm btn-save" id="eSaveBtn">Save</button></div>';
+  pb.innerHTML=h;
+  document.getElementById('eCancelBtn').addEventListener('click',closePanel);
+  document.getElementById('eSaveBtn').addEventListener('click',function(){
+    var p={'Status':{type:'select',value:document.getElementById('e_st').value},'Ad Group Type':{type:'select',value:document.getElementById('e_type').value},'Default Bid':{type:'number',value:parseFloat(document.getElementById('e_bid').value)||null},'Final URL':{type:'url',value:document.getElementById('e_url').value||null},'Display Path 1':{type:'text',value:document.getElementById('e_dp1').value},'Display Path 2':{type:'text',value:document.getElementById('e_dp2').value},'Audience Signals':{type:'text',value:document.getElementById('e_aud').value},'Notes':{type:'text',value:document.getElementById('e_notes').value}};
+    updateNotion(id,p).then(function(r){if(r.success){cache.gadgroups=null;closePanel();render();toast('Ad group updated');}else toast('Update failed',false);});
+  });
+}
+
+// ── Google Ad Copy ──
+function renderGAdCopy(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('gadcopy'),fd('clients'),fd('gadgroups')]).then(function(r){
+  var d=r[0];var t=srch.gadcopy?srch.gadcopy.toLowerCase():'';var f=d;
+  for(var x=0;x<f.length;x++){f[x]._client=resolveClient(f[x].clientIds);f[x]._adGroup=resolveGAdGroup(f[x].adGroupIds);}
+  if(filters.gacClient)f=f.filter(function(a){return a._client===filters.gacClient;});
+  if(filters.gacAdGroup)f=f.filter(function(a){return a._adGroup===filters.gacAdGroup;});
+  if(t)f=f.filter(function(a){return(a.name||'').toLowerCase().indexOf(t)>-1||(a.h01||'').toLowerCase().indexOf(t)>-1||(a.adType||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1;});
+  var clients=getUniqueClients(d);
+  var agNames={};for(var g=0;g<d.length;g++){if(d[g]._adGroup)agNames[d[g]._adGroup]=true;}
+  var agList=Object.keys(agNames).sort();
+  var h='<div class="section-hdr"><div><h2>Google Ad Copy</h2><div class="sub">'+d.length+' ads (RSA, PMax, Display)</div></div></div>';
+  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search Google ads..." value="'+esc(srch.gadcopy)+'" data-search="gadcopy">'+clientFilter('gacClient',clients);
+  h+='<select data-filter="gacAdGroup" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;min-width:140px"><option value="">All Ad Groups</option>';
+  for(var gi=0;gi<agList.length;gi++){h+='<option'+(filters.gacAdGroup===agList[gi]?' selected':'')+'>'+esc(agList[gi])+'</option>';}
+  h+='</select></div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Ad Name</th><th>Client</th><th>Ad Group</th><th>Type</th><th>H01</th><th>Status</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="gadcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:160px">'+esc(a._adGroup)+'</td><td>'+bdg(a.adType||'')+'</td><td style="max-width:200px;font-size:12px">'+esc(a.h01||'')+'</td><td>'+bdg(a.status)+'</td></tr>';}}
+  else h+='<tr><td colspan="6" class="empty">No Google ads</td></tr>';
+  h+='</tbody></table></div></div>';el.innerHTML=h;});}
+
+function showGAdCopy(id){var a=gr(id);if(!a)return;
+  var h=fr('Client',a._client||'Unknown')+fr('Ad Group',a._adGroup||'Unknown')+fr('Ad Type',a.adType)+fb('Status',a.status);
+  // Headlines
+  h+='<div class="ad-preview"><div class="label">Headlines (30 chars max each)</div><div style="font-size:13px;line-height:2">';
+  for(var i=1;i<=15;i++){var hk='h'+String(i).padStart(2,'0');if(a[hk])h+='<div><strong>H'+String(i).padStart(2,'0')+':</strong> '+esc(a[hk])+' <span style="color:var(--text-d);font-size:11px">('+a[hk].length+'/30)</span></div>';}
+  h+='</div></div>';
+  // Long Headlines (PMax)
+  var hasLH=false;for(var lhi=1;lhi<=5;lhi++){if(a['lh'+String(lhi).padStart(2,'0')])hasLH=true;}
+  if(hasLH){
+    h+='<div class="ad-preview"><div class="label">Long Headlines (PMax, 90 chars)</div><div style="font-size:13px;line-height:2">';
+    for(var j=1;j<=5;j++){var lk='lh'+String(j).padStart(2,'0');if(a[lk])h+='<div><strong>LH'+String(j).padStart(2,'0')+':</strong> '+esc(a[lk])+' <span style="color:var(--text-d);font-size:11px">('+a[lk].length+'/90)</span></div>';}
+    h+='</div></div>';
+  }
+  // Descriptions
+  h+='<div class="ad-preview"><div class="label">Descriptions (90 chars max each)</div><div style="font-size:13px;line-height:2">';
+  for(var k=1;k<=4;k++){var dk='d'+String(k).padStart(2,'0');if(a[dk])h+='<div><strong>D'+String(k).padStart(2,'0')+':</strong> '+esc(a[dk])+' <span style="color:var(--text-d);font-size:11px">('+a[dk].length+'/90)</span></div>';}
+  h+='</div></div>';
+  h+=fr('Pinned Positions',a.pinnedPositions)+fr('Testing Group',a.testingGroup)+fr('Client Feedback',a.clientFeedback)+fr('Creative Notes',a.creativeNotes)+fr('Creative URL',a.creativeURL)+fr('Notes',a.notes);
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
+  openPanel(a.name||'Google Ad',h);
+  document.getElementById('pEditBtn').addEventListener('click',function(){editGAdCopy(id);});
+  var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'gadcopy');});
+}
+function editGAdCopy(id){var a=gr(id);if(!a)return;var st=['Draft','In Review','Approved','Changes Needed','Rejected','Live','Paused','Killed'];var pb=document.getElementById('panelBody');
+  var h='<div class="edit-row"><label>Status</label><select id="e_st">';for(var i=0;i<st.length;i++)h+='<option'+(a.status===st[i]?' selected':'')+'>'+st[i]+'</option>';h+='</select></div>';
+  for(var hi=1;hi<=15;hi++){var hk='h'+String(hi).padStart(2,'0');h+='<div class="edit-row"><label>H'+String(hi).padStart(2,'0')+' (30 chars)</label><input id="e_'+hk+'" value="'+esc(a[hk]||'')+'" maxlength="30"></div>';}
+  for(var di=1;di<=4;di++){var dk='d'+String(di).padStart(2,'0');h+='<div class="edit-row"><label>D'+String(di).padStart(2,'0')+' (90 chars)</label><input id="e_'+dk+'" value="'+esc(a[dk]||'')+'" maxlength="90"></div>';}
+  h+='<div class="edit-row"><label>Pinned Positions</label><input id="e_pin" value="'+esc(a.pinnedPositions||'')+'"></div>';
+  h+='<div class="edit-row"><label>Notes</label><textarea id="e_notes" rows="2">'+esc(a.notes||'')+'</textarea></div>';
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="eCancelBtn">Cancel</button><button class="btn btn-sm btn-save" id="eSaveBtn">Save</button></div>';
+  pb.innerHTML=h;
+  document.getElementById('eCancelBtn').addEventListener('click',closePanel);
+  document.getElementById('eSaveBtn').addEventListener('click',function(){
+    var btn=document.getElementById('eSaveBtn');btn.textContent='Saving...';btn.disabled=true;
+    var p={'Status':{type:'select',value:document.getElementById('e_st').value},'Pinned Positions':{type:'text',value:document.getElementById('e_pin').value},'Notes':{type:'text',value:document.getElementById('e_notes').value}};
+    for(var hi=1;hi<=15;hi++){var hk='H'+String(hi).padStart(2,'0');p[hk]={type:'text',value:document.getElementById('e_h'+String(hi).padStart(2,'0')).value};}
+    for(var di=1;di<=4;di++){var dk='D'+String(di).padStart(2,'0');p[dk]={type:'text',value:document.getElementById('e_d'+String(di).padStart(2,'0')).value};}
+    updateNotion(id,p).then(function(r){if(r.success){cache.gadcopy=null;closePanel();render();toast('Google ad updated');}else{toast('Update failed',false);btn.textContent='Save';btn.disabled=false;}});
+  });
+}
+
+// ── Google Keywords ──
+function renderGKeywords(){var el=document.getElementById('mainContent');el.innerHTML=ldr();
+  Promise.all([fd('gkeywords'),fd('clients'),fd('gadgroups')]).then(function(r){
+  var d=r[0];var t=srch.gkeywords?srch.gkeywords.toLowerCase():'';var f=d;
+  for(var x=0;x<f.length;x++){f[x]._client=resolveClient(f[x].clientIds);f[x]._adGroup=resolveGAdGroup(f[x].adGroupIds);}
+  if(filters.gkwClient)f=f.filter(function(a){return a._client===filters.gkwClient;});
+  if(filters.gkwAdGroup)f=f.filter(function(a){return a._adGroup===filters.gkwAdGroup;});
+  if(t)f=f.filter(function(a){return(a.keyword||'').toLowerCase().indexOf(t)>-1||(a.matchType||'').toLowerCase().indexOf(t)>-1||(a.status||'').toLowerCase().indexOf(t)>-1||(a._client||'').toLowerCase().indexOf(t)>-1;});
+  var clients=getUniqueClients(d);
+  var agNames={};for(var g=0;g<d.length;g++){if(d[g]._adGroup)agNames[d[g]._adGroup]=true;}
+  var agList=Object.keys(agNames).sort();
+  var h='<div class="section-hdr"><div><h2>Google Keywords</h2><div class="sub">'+d.length+' keywords</div></div></div>';
+  h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search keywords..." value="'+esc(srch.gkeywords)+'" data-search="gkeywords">'+clientFilter('gkwClient',clients);
+  h+='<select data-filter="gkwAdGroup" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;min-width:140px"><option value="">All Ad Groups</option>';
+  for(var gi=0;gi<agList.length;gi++){h+='<option'+(filters.gkwAdGroup===agList[gi]?' selected':'')+'>'+esc(agList[gi])+'</option>';}
+  h+='</select></div>';
+  h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Keyword</th><th>Client</th><th>Ad Group</th><th>Match</th><th>Status</th><th>Comp.</th><th>Searches</th><th>QS</th><th>Bid</th></tr></thead><tbody>';
+  if(f.length){for(var i=0;i<f.length;i++){var kw=f[i];sr(kw);h+='<tr class="clickable" data-id="'+kw.id+'" data-type="gkeyword"><td class="cell-name">'+esc(kw.keyword)+'</td><td>'+esc(kw._client)+'</td><td style="max-width:160px">'+esc(kw._adGroup)+'</td><td>'+bdg(kw.matchType||'')+'</td><td>'+bdg(kw.status)+'</td><td>'+bdg(kw.competition||'')+'</td><td>'+nm(kw.avgSearches)+'</td><td>'+(kw.qualityScore||'\u2014')+'</td><td>'+dlr(kw.suggestedBid)+'</td></tr>';}}
+  else h+='<tr><td colspan="9" class="empty">No keywords</td></tr>';
+  h+='</tbody></table></div></div>';el.innerHTML=h;});}
+
+function showGKeyword(id){var kw=gr(id);if(!kw)return;
+  var h=fr('Client',kw._client||'Unknown')+fr('Ad Group',kw._adGroup||'Unknown')+fr('Match Type',kw.matchType)+fb('Status',kw.status)+fr('Competition',kw.competition)+fr('Avg Monthly Searches',kw.avgSearches?nm(kw.avgSearches):null)+fr('Quality Score',kw.qualityScore)+fr('Suggested Bid',kw.suggestedBid?dlr(kw.suggestedBid):null)+fr('Notes',kw.notes);
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
+  openPanel(kw.keyword,h);
+  document.getElementById('pEditBtn').addEventListener('click',function(){editGKeyword(id);});
+  var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'gkeywords');});
+}
+function editGKeyword(id){var kw=gr(id);if(!kw)return;var st=['Active','Paused','Negative','Removed'];var mt=['Broad','Phrase','Exact'];var comp=['Low','Medium','High'];var pb=document.getElementById('panelBody');
+  var h='<div class="edit-row"><label>Status</label><select id="e_st">';for(var i=0;i<st.length;i++)h+='<option'+(kw.status===st[i]?' selected':'')+'>'+st[i]+'</option>';h+='</select></div>';
+  h+='<div class="edit-row"><label>Match Type</label><select id="e_mt">';for(var j=0;j<mt.length;j++)h+='<option'+(kw.matchType===mt[j]?' selected':'')+'>'+mt[j]+'</option>';h+='</select></div>';
+  h+='<div class="edit-row"><label>Quality Score (1-10)</label><input type="number" min="1" max="10" id="e_qs" value="'+(kw.qualityScore||'')+'"></div>';
+  h+='<div class="edit-row"><label>Suggested Bid ($)</label><input type="number" step="0.01" id="e_bid" value="'+(kw.suggestedBid||'')+'"></div>';
+  h+='<div class="edit-row"><label>Notes</label><textarea id="e_notes" rows="2">'+esc(kw.notes||'')+'</textarea></div>';
+  h+='<div class="edit-actions"><button class="btn btn-sm" id="eCancelBtn">Cancel</button><button class="btn btn-sm btn-save" id="eSaveBtn">Save</button></div>';
+  pb.innerHTML=h;
+  document.getElementById('eCancelBtn').addEventListener('click',closePanel);
+  document.getElementById('eSaveBtn').addEventListener('click',function(){
+    var p={'Status':{type:'select',value:document.getElementById('e_st').value},'Match Type':{type:'select',value:document.getElementById('e_mt').value},'Quality Score':{type:'number',value:parseFloat(document.getElementById('e_qs').value)||null},'Suggested Bid':{type:'number',value:parseFloat(document.getElementById('e_bid').value)||null},'Notes':{type:'text',value:document.getElementById('e_notes').value}};
+    updateNotion(id,p).then(function(r){if(r.success){cache.gkeywords=null;closePanel();render();toast('Keyword updated');}else toast('Update failed',false);});
+  });
+}
+
 // ── Delete ──
 function confirmDel(id,type){
   if(user.role!=='admin'){toast('Admin required',false);return;}
@@ -815,7 +974,7 @@ function confirmDel(id,type){
 
 // ── Router ──
 function render(){
-  var m={overview:renderOverview,clients:renderClients,campaigns:renderCampaigns,adsets:renderAdSets,adcopy:renderAdCopy,performance:renderPerformance};
+  var m={overview:renderOverview,clients:renderClients,campaigns:renderCampaigns,adsets:renderAdSets,adcopy:renderAdCopy,performance:renderPerformance,gadgroups:renderGAdGroups,gadcopy:renderGAdCopy,gkeywords:renderGKeywords};
   (m[sec]||renderOverview)();
 }
 </script>
