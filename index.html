@@ -548,6 +548,7 @@ function showAdCopy(id){
   // Publish Live button — only for Approved
   if(a.status==='Approved'){
     h+='<button class="btn btn-primary" id="publishLiveBtn" style="width:100%;padding:12px 0;font-size:14px;margin-top:16px">\u25B6 Publish Live</button>';
+    h+='<style>#publishLiveBtn:hover{background:var(--green) !important;border-color:var(--green) !important;color:#fff !important}</style>';
   }
   // Details section — ordered: Campaign > Ad Set > Image Ref > Reference > Angle > Testing Group
   h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">';
@@ -559,8 +560,10 @@ function showAdCopy(id){
   h+=fr('Angle',a.angle);
   h+=fr('Testing Group',a.testingGroup);
   h+='</div>';
-  // Edit/Delete hidden for now — reactivate later if needed
-  // h+='<div class="edit-actions"><button class="btn btn-sm" id="pEditBtn">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-sm btn-danger" id="pDelBtn">Delete</button>':'')+'</div>';
+  // Edit/Delete — only for In Review status
+  if(a.status==='In Review'){
+    h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn" id="pEditBtn" style="flex:1;padding:10px 0;text-align:center">Edit Copy</button>'+(user.role==='admin'?'<button class="btn btn-danger" id="pDelBtn" style="flex:1;padding:10px 0;text-align:center">Delete</button>':'')+'</div>';
+  }
   document.getElementById('panelBody').innerHTML=h;
   document.getElementById('detailOverlay').classList.add('open');
   // Bind copy clicks
@@ -597,9 +600,11 @@ function showAdCopy(id){
       });
     });
   }
-  // Edit/Delete bindings hidden — reactivate later
-  // document.getElementById('pEditBtn').addEventListener('click',function(){editAdCopy(id);});
-  // var del=document.getElementById('pDelBtn');if(del)del.addEventListener('click',function(){confirmDel(id,'adcopy');});
+  // Edit/Delete bindings — only exist for In Review
+  var editBtn=document.getElementById('pEditBtn');
+  if(editBtn)editBtn.addEventListener('click',function(){editAdCopy(id);});
+  var del=document.getElementById('pDelBtn');
+  if(del)del.addEventListener('click',function(){confirmDel(id,'adcopy');});
 }
 
 function editAdCopy(id){
