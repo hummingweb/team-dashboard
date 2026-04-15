@@ -518,7 +518,7 @@ function renderAdCopy(){var el=document.getElementById('mainContent');el.innerHT
   // Build status list
   var allStatuses={};for(var si=0;si<d.length;si++){if(d[si].status)allStatuses[d[si].status]=true;}
   var statusList=Object.keys(allStatuses).sort();
-  var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations'+(f.length!==d.length?' \u2014 showing '+f.length:'')+'</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy">+ New Ad</button></div>';
+  var h='<div class="section-hdr"><div><h2>Ad Copy</h2><div class="sub">'+d.length+' ad variations'+(f.length!==d.length?' \u2014 showing '+f.length:'')+'</div></div><button class="btn btn-primary btn-sm" data-action="new-adcopy" style="transition:all .12s" onmouseover="this.style.background=\'var(--green)\';this.style.borderColor=\'var(--green)\'" onmouseout="this.style.background=\'var(--accent)\';this.style.borderColor=\'var(--accent)\'">+ New Ad</button></div>';
   h+='<div class="search-bar" style="flex-wrap:wrap"><input placeholder="Search by reference, angle..." value="'+esc(srch.adcopy)+'" data-search="adcopy" style="min-width:200px">'+makeFilter('adcopyClient','All Clients',clientList)+makeFilter('adcopyCampaign','All Campaigns',campaignList)+makeFilter('adcopyAdset','All Ad Sets',adsetList)+makeFilter('adcopyStatus','All Statuses',statusList)+'</div>';
   h+='<div class="table-wrap"><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Client</th><th>Campaign</th><th>Ad Set</th><th>Hook</th><th>Status</th></tr></thead><tbody>';
   if(f.length){for(var i=0;i<f.length;i++){var a=f[i];sr(a);h+='<tr class="clickable" data-id="'+a.id+'" data-type="adcopy"><td class="cell-mono">'+esc(a.name)+'</td><td>'+esc(a._client)+'</td><td style="max-width:140px">'+esc(a._campaign)+'</td><td style="max-width:140px;font-size:12px">'+esc(a._adSet)+'</td><td style="max-width:200px">'+esc(a.hook)+'</td><td>'+bdg(a.status)+'</td></tr>';}}
@@ -658,48 +658,166 @@ function editAdCopy(id){
 }
 
 function newAdCopyForm(){
-  var st=['Draft','In Review'];
-  var angles=['Pain-Agitate-Solve','Benefit-Led','Social Proof','Urgency-Scarcity','Curiosity','Authority-Education','Us vs Them','Story-Led'];
-  var ctas=['Shop Now','Learn More','Sign Up','Book Now','Get Quote','Download','Contact Us'];
-  var h='<div class="edit-row"><label>Ad Name (Reference Code)</label><input id="n_name" placeholder="1001 - H01B01H01"></div>';
-  h+='<div class="edit-row"><label>Status</label><select id="n_st">';for(var i=0;i<st.length;i++)h+='<option>'+st[i]+'</option>';h+='</select></div>';
-  h+='<div class="edit-row"><label>Angle</label><select id="n_angle">';for(var j=0;j<angles.length;j++)h+='<option>'+angles[j]+'</option>';h+='</select></div>';
-  h+='<div class="edit-row"><label>Hook</label><textarea id="n_hook" rows="3" placeholder="First 1-2 scroll-stopping lines"></textarea></div>';
-  h+='<div class="edit-row"><label>Primary Text (Body)</label><textarea id="n_body" rows="6" placeholder="Full body copy after the hook"></textarea></div>';
-  h+='<div class="edit-row"><label>Headline</label><input id="n_hl" placeholder="5-8 words, 40 char max"></div>';
-  h+='<div class="edit-row"><label>Description</label><input id="n_desc" placeholder="1 sentence under 30 words"></div>';
-  h+='<div class="edit-row"><label>CTA Button</label><select id="n_cta">';for(var k=0;k<ctas.length;k++)h+='<option>'+ctas[k]+'</option>';h+='</select></div>';
-  h+='<div class="edit-row"><label>Image Ref</label><input id="n_img" placeholder="e.g. 1001"></div>';
-  h+='<div class="edit-actions"><button class="btn btn-sm" id="eCancelBtn">Cancel</button><button class="btn btn-sm btn-save" id="eSaveBtn">Create</button></div>';
-  openPanel('New Ad Copy',h);
-  document.getElementById('eCancelBtn').addEventListener('click',closePanel);
-  document.getElementById('eSaveBtn').addEventListener('click',function(){
-    var name=document.getElementById('n_name').value.trim();
-    if(!name){toast('Ad name is required',false);return;}
-    var btn=document.getElementById('eSaveBtn');btn.textContent='Creating...';btn.disabled=true;
-    // Create via Notion API through n8n — POST to a create endpoint
-    // For now we use the update endpoint pattern but need a create endpoint
-    // Workaround: send to update with a special flag
-    var payload={
-      databaseId:'b3d11e661cd94149ab4a29d74dd9211f',
-      properties:{
-        'Ad Name':{type:'title',value:name},
-        'Status':{type:'select',value:document.getElementById('n_st').value},
-        'Angle':{type:'select',value:document.getElementById('n_angle').value},
-        'Hook':{type:'rich_text',value:document.getElementById('n_hook').value},
-        'Primary Text':{type:'rich_text',value:document.getElementById('n_body').value},
-        'Headline':{type:'text',value:document.getElementById('n_hl').value},
-        'Description':{type:'text',value:document.getElementById('n_desc').value},
-        'CTA Button':{type:'select',value:document.getElementById('n_cta').value},
-        'Image Ref':{type:'text',value:document.getElementById('n_img').value}
+  // Multi-step wizard: Client → Campaign → Ad Set → Ad Copy Details
+  var wizData={clientId:'',clientName:'',campaignId:'',campaignName:'',adsetId:'',adsetName:''};
+  var step=1;
+
+  function renderStep(){
+    var pb=document.getElementById('panelBody');
+    var stepLabel='<div style="display:flex;gap:6px;margin-bottom:18px">';
+    for(var si=1;si<=4;si++){
+      var active=si===step;var done=si<step;
+      stepLabel+='<div style="flex:1;height:3px;border-radius:2px;background:'+(done?'var(--green)':active?'var(--accent)':'var(--border)')+'"></div>';
+    }
+    stepLabel+='</div>';
+
+    if(step===1){
+      // Step 1: Select Client
+      var clients=cache.clients||[];
+      var h=stepLabel+'<div style="font-size:10px;color:var(--text-d);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500">Step 1 of 4</div>';
+      h+='<div style="font-size:16px;font-weight:500;margin-bottom:16px">Select Client</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:4px">';
+      for(var i=0;i<clients.length;i++){
+        var c=clients[i];
+        h+='<div class="wiz-option" data-cid="'+c.id+'" data-cname="'+esc(c.name)+'" style="padding:10px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;transition:all .1s">';
+        h+='<div style="font-weight:500">'+esc(c.name)+'</div>';
+        if(c.businessName&&c.businessName!==c.name)h+='<div style="font-size:11px;color:var(--text-d)">'+esc(c.businessName)+'</div>';
+        h+='</div>';
       }
-    };
-    fetch(API+'/team-dashboard-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){return r.json();})
-      .then(function(j){
-        if(j.id||j.success){cache.adcopy=null;closePanel();render();toast('Ad copy created');}
-        else{toast('Create failed',false);btn.textContent='Create';btn.disabled=false;}
-      }).catch(function(){toast('Create failed',false);btn.textContent='Create';btn.disabled=false;});
+      h+='</div>';
+      h+='<div style="margin-top:16px"><button class="btn btn-sm" id="wizCancel">Cancel</button></div>';
+      pb.innerHTML=h;
+      // Bind option clicks
+      var opts=pb.querySelectorAll('.wiz-option');
+      for(var oi=0;oi<opts.length;oi++){
+        opts[oi].addEventListener('mouseenter',function(){this.style.borderColor='var(--accent)';this.style.background='var(--surface2)';});
+        opts[oi].addEventListener('mouseleave',function(){this.style.borderColor='var(--border)';this.style.background='';});
+        opts[oi].addEventListener('click',function(){
+          wizData.clientId=this.getAttribute('data-cid');
+          wizData.clientName=this.getAttribute('data-cname');
+          step=2;renderStep();
+        });
+      }
+      pb.querySelector('#wizCancel').addEventListener('click',closePanel);
+
+    } else if(step===2){
+      // Step 2: Select Campaign (filtered by client)
+      var campaigns=(cache.campaigns||[]).filter(function(c){
+        return c.clientIds&&c.clientIds.indexOf(wizData.clientId)>-1;
+      });
+      var h=stepLabel+'<div style="font-size:10px;color:var(--text-d);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500">Step 2 of 4 \u2014 '+esc(wizData.clientName)+'</div>';
+      h+='<div style="font-size:16px;font-weight:500;margin-bottom:16px">Select Campaign</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:4px">';
+      for(var i=0;i<campaigns.length;i++){
+        var c=campaigns[i];
+        h+='<div class="wiz-option" data-cid="'+c.id+'" data-cname="'+esc(c.name)+'" style="padding:10px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;transition:all .1s">';
+        h+='<div style="font-weight:500">'+esc(c.name)+'</div>';
+        h+='<div style="font-size:11px;color:var(--text-d)">'+esc(c.objective||'')+' \u00B7 '+(c.platform||'Meta Ads')+'</div>';
+        h+='</div>';
+      }
+      if(!campaigns.length)h+='<div class="empty">No campaigns for this client</div>';
+      h+='</div>';
+      h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-sm" id="wizBack">\u2190 Back</button><button class="btn btn-sm" id="wizCancel">Cancel</button></div>';
+      pb.innerHTML=h;
+      var opts=pb.querySelectorAll('.wiz-option');
+      for(var oi=0;oi<opts.length;oi++){
+        opts[oi].addEventListener('mouseenter',function(){this.style.borderColor='var(--accent)';this.style.background='var(--surface2)';});
+        opts[oi].addEventListener('mouseleave',function(){this.style.borderColor='var(--border)';this.style.background='';});
+        opts[oi].addEventListener('click',function(){
+          wizData.campaignId=this.getAttribute('data-cid');
+          wizData.campaignName=this.getAttribute('data-cname');
+          step=3;renderStep();
+        });
+      }
+      pb.querySelector('#wizBack').addEventListener('click',function(){step=1;renderStep();});
+      pb.querySelector('#wizCancel').addEventListener('click',closePanel);
+
+    } else if(step===3){
+      // Step 3: Select Ad Set (filtered by campaign)
+      var adsets=(cache.adsets||[]).filter(function(a){
+        return a.campaignIds&&a.campaignIds.indexOf(wizData.campaignId)>-1;
+      });
+      var h=stepLabel+'<div style="font-size:10px;color:var(--text-d);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500">Step 3 of 4 \u2014 '+esc(wizData.campaignName)+'</div>';
+      h+='<div style="font-size:16px;font-weight:500;margin-bottom:16px">Select Ad Set</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:4px">';
+      for(var i=0;i<adsets.length;i++){
+        var a=adsets[i];
+        h+='<div class="wiz-option" data-aid="'+a.id+'" data-aname="'+esc(a.name)+'" style="padding:10px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;transition:all .1s">';
+        h+='<div style="font-weight:500">'+esc(a.name)+'</div>';
+        h+='<div style="font-size:11px;color:var(--text-d)">'+esc(a.funnelStage||'')+' \u00B7 '+bdg(a.status)+'</div>';
+        h+='</div>';
+      }
+      if(!adsets.length)h+='<div class="empty">No ad sets for this campaign</div>';
+      h+='</div>';
+      h+='<div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-sm" id="wizBack">\u2190 Back</button><button class="btn btn-sm" id="wizCancel">Cancel</button></div>';
+      pb.innerHTML=h;
+      var opts=pb.querySelectorAll('.wiz-option');
+      for(var oi=0;oi<opts.length;oi++){
+        opts[oi].addEventListener('mouseenter',function(){this.style.borderColor='var(--accent)';this.style.background='var(--surface2)';});
+        opts[oi].addEventListener('mouseleave',function(){this.style.borderColor='var(--border)';this.style.background='';});
+        opts[oi].addEventListener('click',function(){
+          wizData.adsetId=this.getAttribute('data-aid');
+          wizData.adsetName=this.getAttribute('data-aname');
+          step=4;renderStep();
+        });
+      }
+      pb.querySelector('#wizBack').addEventListener('click',function(){step=2;renderStep();});
+      pb.querySelector('#wizCancel').addEventListener('click',closePanel);
+
+    } else if(step===4){
+      // Step 4: Ad Copy Details
+      var angles=['Pain-Agitate-Solve','Benefit-Led','Social Proof','Urgency-Scarcity','Curiosity','Authority-Education','Us vs Them','Story-Led'];
+      var ctas=['Shop Now','Learn More','Sign Up','Book Now','Get Quote','Download','Contact Us'];
+      var h=stepLabel+'<div style="font-size:10px;color:var(--text-d);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500">Step 4 of 4 \u2014 '+esc(wizData.adsetName)+'</div>';
+      h+='<div style="font-size:16px;font-weight:500;margin-bottom:16px">Ad Copy Details</div>';
+      // Summary of selections
+      h+='<div style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:12px;color:var(--text-m)">';
+      h+=esc(wizData.clientName)+' \u2192 '+esc(wizData.campaignName)+' \u2192 '+esc(wizData.adsetName);
+      h+='</div>';
+      h+='<div class="edit-row"><label>Ad Name</label><input id="n_name" placeholder="1001 | H01B01H01"></div>';
+      h+='<div class="edit-row"><label>Angle</label><select id="n_angle">';for(var j=0;j<angles.length;j++)h+='<option>'+angles[j]+'</option>';h+='</select></div>';
+      h+='<div class="edit-row"><label>Hook</label><textarea id="n_hook" rows="2" placeholder="First 1-2 scroll-stopping lines"></textarea></div>';
+      h+='<div class="edit-row"><label>Primary Text</label><textarea id="n_body" rows="5" placeholder="Full body copy"></textarea></div>';
+      h+='<div class="edit-row"><label>Headline</label><input id="n_hl" placeholder="5-8 words, 40 char max"></div>';
+      h+='<div class="edit-row"><label>Description</label><input id="n_desc" placeholder="1 sentence under 30 words"></div>';
+      h+='<div class="edit-row"><label>CTA Button</label><select id="n_cta">';for(var k=0;k<ctas.length;k++)h+='<option>'+ctas[k]+'</option>';h+='</select></div>';
+      h+='<div class="edit-row"><label>Image Ref</label><input id="n_img" placeholder="e.g. 1001"></div>';
+      h+='<div style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-sm" id="wizBack" style="flex:1;padding:10px 0;text-align:center">\u2190 Back</button><button class="btn btn-save" id="wizCreate" style="flex:1;padding:10px 0;text-align:center">Create Ad</button></div>';
+      pb.innerHTML=h;
+      pb.querySelector('#wizBack').addEventListener('click',function(){step=3;renderStep();});
+      pb.querySelector('#wizCreate').addEventListener('click',function(){
+        var name=document.getElementById('n_name').value.trim();
+        if(!name){toast('Ad name is required',false);return;}
+        var btn=pb.querySelector('#wizCreate');btn.textContent='Creating...';btn.disabled=true;
+        var payload={
+          databaseId:'b3d11e661cd94149ab4a29d74dd9211f',
+          adSetId:wizData.adsetId,
+          properties:{
+            'Ad Name':{type:'title',value:name},
+            'Status':{type:'select',value:'Draft'},
+            'Angle':{type:'select',value:document.getElementById('n_angle').value},
+            'Hook':{type:'rich_text',value:document.getElementById('n_hook').value},
+            'Primary Text':{type:'rich_text',value:document.getElementById('n_body').value},
+            'Headline':{type:'text',value:document.getElementById('n_hl').value},
+            'Description':{type:'text',value:document.getElementById('n_desc').value},
+            'CTA Button':{type:'select',value:document.getElementById('n_cta').value},
+            'Image Ref':{type:'text',value:document.getElementById('n_img').value}
+          }
+        };
+        fetch(API+'/team-dashboard-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+          .then(function(r){return r.json();})
+          .then(function(j){
+            if(j.id||j.success){cache.adcopy=null;closePanel();render();toast('Ad copy created');}
+            else{toast('Create failed',false);btn.textContent='Create Ad';btn.disabled=false;}
+          }).catch(function(){toast('Create failed',false);btn.textContent='Create Ad';btn.disabled=false;});
+      });
+    }
+  }
+
+  // Load all data first, then start wizard
+  Promise.all([fd('clients'),fd('campaigns'),fd('adsets')]).then(function(){
+    openPanel('New Ad Copy','');
+    renderStep();
   });
 }
 
